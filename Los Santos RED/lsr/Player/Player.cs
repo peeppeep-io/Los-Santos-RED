@@ -177,6 +177,7 @@ namespace Mod
             IntimidationManager = new IntimidationManager(this, World, Settings);
             GamblingManager = new GamblingManager(this, Settings, TimeControllable);
             VehicleManager = new VehicleManager(this, World, Settings);
+            CraftingFlags = new HashSet<string>();
         }
         public IntimidationManager IntimidationManager { get; private set; }
         public CuffManager CuffManager { get; private set; }
@@ -492,6 +493,7 @@ namespace Mod
         public bool IsInPoliceVehicle { get; private set; }
         public Dispatcher Dispatcher { get; set; }
         public bool IsBlockingTraffic { get; set; }
+        public HashSet<string> CraftingFlags { get; set; }
 
 
 
