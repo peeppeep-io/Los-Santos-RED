@@ -1,4 +1,5 @@
 ﻿using LosSantosRED.lsr.Helper;
+using LosSantosRED.lsr.Plugins;
 using Rage;
 using RAGENativeUI;
 using RAGENativeUI.Elements;
@@ -16,22 +17,23 @@ namespace LosSantosRED.lsr
     public class ModController
     {
         public List<ModTaskGroup> TaskGroups { get; private set; } = new List<ModTaskGroup>();
-        private Civilians Civilians;
-        private Debug Debug;
-        private Dispatcher Dispatcher;
-        private Input Input;   
-        private PedSwap PedSwap;   
-        private Mod.Player Player;
-        private Police Police;  
-        private Mod.Tasker Tasker;
-        private Mod.Time Time;
-        private UI UI;
-        private VanillaManager VanillaManager;
-        private NAudioPlayer NAudioPlayer;
-        private NAudioPlayer NAudioPlayer2;
-        private WeatherReporting Weather;
-        private Mod.World World;
-        private Mod.Crafting Crafting;
+        public List<PluginTask> Plugins { get; private set; } = new List<PluginTask>();
+        public Civilians Civilians;
+        public Debug Debug;
+        public Dispatcher Dispatcher;
+        public Input Input;   
+        public PedSwap PedSwap;   
+        public Mod.Player Player;
+        public Police Police;  
+        public Mod.Tasker Tasker;
+        public Mod.Time Time;
+        public UI UI;
+        public VanillaManager VanillaManager;
+        public NAudioPlayer NAudioPlayer;
+        public NAudioPlayer NAudioPlayer2;
+        public WeatherReporting Weather;
+        public Mod.World World;
+        public Mod.Crafting Crafting;
         public ModDataFileManager ModDataFileManager { get; private set; }
         private WeatherManager WeatherManager;
 
@@ -125,7 +127,7 @@ namespace LosSantosRED.lsr
             GameFiber.Yield();
             PedSwap.Setup();
             GameFiber.Yield();
-
+            PluginManager.SetupPlugins(Plugins, this);
             SetTaskGroups();
             GameFiber.Yield();
             StartCoreLogic();
@@ -133,6 +135,7 @@ namespace LosSantosRED.lsr
             StartUILogic();
             GameFiber.Yield();
             StartInputLogic();
+            StartPluginLogic();
             GameFiber.Yield();
 #if DEBUG
             StartDebugLogic();
@@ -285,6 +288,31 @@ namespace LosSantosRED.lsr
                 }, $"Run Logic {modTaskGroup.Name}");
             } 
             GameFiber.Yield();
+        }
+        private void StartPluginLogic()
+        {
+            foreach(PluginTask task in Plugins)
+            {
+                GameFiber.StartNew(delegate
+                {
+                    try
+                    {
+                        while (IsRunning)
+                        {
+                            task.Run();
+                            GameFiber.Yield();
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        EntryPoint.WriteToConsole("Error: " + e.Message + " : " + e.StackTrace, 0);
+                        DisplayCrashMessage();
+                        Dispose();
+                    }
+                }, $"Run Logic {task.DebugName}");
+            }
+            GameFiber.Yield();
+
         }
         private void StartInputLogic()
         {
