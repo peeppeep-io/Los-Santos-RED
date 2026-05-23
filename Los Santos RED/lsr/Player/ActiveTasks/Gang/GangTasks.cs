@@ -16,9 +16,9 @@ public class GangTasks : IPlayerTaskGroup
 
     private ITaskAssignable Player;
     private ITimeControllable Time;
-    private IGangTerritories GangTerritories;
+    public IGangTerritories GangTerritories { get; private set; }
     private IGangs Gangs; 
-    private IZones Zones;
+    public IZones Zones { get; private set; }
     private PlayerTasks PlayerTasks;
     private IPlacesOfInterest PlacesOfInterest;
     private List<DeadDrop> ActiveDrops = new List<DeadDrop>();
@@ -32,22 +32,22 @@ public class GangTasks : IPlayerTaskGroup
     private IPedGroups PedGroups;
     private IAgencies Agencies;
 
-    private List<RivalGangAmbushTask> RivalGangAmbush = new List<RivalGangAmbushTask>();
-    private List<RivalGangHitTask> RivalGangHits = new List<RivalGangHitTask>();
-    private List<PayoffGangTask> PayoffGangTasks = new List<PayoffGangTask>();
-    private List<RivalGangVehicleTheftTask> RivalGangTheftTasks = new List<RivalGangVehicleTheftTask>();
-    private List<GangRacketeeringTask> GangRacketeeringTasks = new List<GangRacketeeringTask>();
-    private List<GangBriberyTask> GangBriberyTasks = new List<GangBriberyTask>();
-    private List<GangPickupTask> GangPickupTasks = new List<GangPickupTask>();
-    private List<GangArsonTask> GangArsonTasks = new List<GangArsonTask>();
-    private List<GangDeliveryTask> GangDeliveryTasks = new List<GangDeliveryTask>();
-    private List<GangWheelmanTask> GangWheelmanTasks = new List<GangWheelmanTask>();
-    private List<GangPizzaDeliveryTask> GangPizzaDeliveryTasks = new List<GangPizzaDeliveryTask>();
-    private List<GangProveWorthTask> GangProveWorthTasks = new List<GangProveWorthTask>();
-    private List<GangGetCarOutOfImpoundTask> GangGetCarOutOfImpoundTasks = new List<GangGetCarOutOfImpoundTask>();
+    public List<RivalGangAmbushTask> RivalGangAmbush { get; private set; } = new List<RivalGangAmbushTask>();
+    public List<RivalGangHitTask> RivalGangHits { get; private set; } = new List<RivalGangHitTask>();
+    public List<PayoffGangTask> PayoffGangTasks { get; private set; } = new List<PayoffGangTask>();
+    public List<RivalGangVehicleTheftTask> RivalGangTheftTasks { get; private set; } = new List<RivalGangVehicleTheftTask>();
+    public List<GangRacketeeringTask> GangRacketeeringTasks { get; private set; } = new List<GangRacketeeringTask>();
+    public List<GangBriberyTask> GangBriberyTasks { get; private set; } = new List<GangBriberyTask>();
+    public List<GangPickupTask> GangPickupTasks { get; private set; } = new List<GangPickupTask>();
+    public List<GangArsonTask> GangArsonTasks { get; private set; } = new List<GangArsonTask>();
+    public List<GangDeliveryTask> GangDeliveryTasks { get; private set; } = new List<GangDeliveryTask>();
+    public List<GangWheelmanTask> GangWheelmanTasks { get; private set; } = new List<GangWheelmanTask>();
+    public List<GangPizzaDeliveryTask> GangPizzaDeliveryTasks { get; private set; } = new List<GangPizzaDeliveryTask>();
+    public List<GangProveWorthTask> GangProveWorthTasks { get; private set; } = new List<GangProveWorthTask>();
+    public List<GangGetCarOutOfImpoundTask> GangGetCarOutOfImpoundTasks { get; private set; } = new List<GangGetCarOutOfImpoundTask>();
 
 
-    private List<GangTask> AllGenericGangTasks = new List<GangTask>();
+    public List<GangTask> AllGenericGangTasks { get; private set; } = new List<GangTask>();
 
     public GangTasks(ITaskAssignable player, ITimeControllable time, IGangs gangs, PlayerTasks playerTasks, IPlacesOfInterest placesOfInterest, List<DeadDrop> activeDrops, ISettingsProvideable settings, IEntityProvideable world, ICrimes crimes, IModItems modItems, IShopMenus shopMenus, IWeapons weapons, INameProvideable names, IPedGroups pedGroups, IAgencies agencies, IGangTerritories gangTerritories, IZones zones)
     {

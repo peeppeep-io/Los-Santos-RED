@@ -1,6 +1,7 @@
 ﻿using ExtensionsMethods;
 using LosSantosRED.lsr.Helper;
 using LosSantosRED.lsr.Interface;
+using LosSantosRED.lsr.Player.ActiveTasks.ActiveTaskManager;
 using Rage;
 using RAGENativeUI;
 using System;
@@ -12,19 +13,21 @@ using System.Threading.Tasks;
 
 public class PlayerTasks
 {
-    private ITaskAssignable Player;
-    private ITimeControllable Time;
-    private IGangs Gangs;
-    private IPlacesOfInterest PlacesOfInterest;
-    private IEntityProvideable World;
-    private ICrimes Crimes;
-    private INameProvideable Names;
-    private IWeapons Weapons;
-    private IShopMenus ShopMenus;
-    private IPedGroups PedGroups;
-    private List<DeadDrop> ActiveDrops = new List<DeadDrop>();
-    private ISettingsProvideable Settings;
-    private List<PlayerTask> LastContactTask = new List<PlayerTask>();
+    public ITaskAssignable Player {get; private set;}
+    public ITimeControllable Time { get; private set; }
+    public IGangs Gangs { get; private set; }
+    public IPlacesOfInterest PlacesOfInterest { get; private set; }
+    public IEntityProvideable World { get; private set; }
+    public ICrimes Crimes { get; private set; }
+    public INameProvideable Names { get; private set; }
+    public IWeapons Weapons { get; private set; }
+    public IShopMenus ShopMenus { get; private set; }
+    public IPedGroups PedGroups { get; private set; }
+    public List<DeadDrop> ActiveDrops { get; private set; } = new List<DeadDrop>();
+    public ISettingsProvideable Settings { get; private set; }
+    public List<PlayerTask> LastContactTask { get; private set; } = new List<PlayerTask>();
+    public IModItems ModItems { get; private set; }
+    public IAgencies Agencies { get; private set; }
 
     private List<IPlayerTaskGroup> PlayerTaskGroups = new List<IPlayerTaskGroup>();
     public GangTasks GangTasks { get; private set; }
@@ -32,6 +35,7 @@ public class PlayerTasks
     public UndergroundGunsTasks UndergroundGunsTasks { get; private set; }
     public VehicleExporterTasks VehicleExporterTasks { get; private set; }
     public List<PlayerTask> PlayerTaskList { get; set; } = new List<PlayerTask>();
+    public ActiveTaskManager ActiveTaskManager { get; set; }
     public PlayerTasks(ITaskAssignable player, ITimeControllable time, IGangs gangs, IPlacesOfInterest placesOfInterest, ISettingsProvideable settings, IEntityProvideable world, 
         ICrimes crimes, INameProvideable names, IWeapons weapons, IShopMenus shopMenus, IModItems modItems, IPedGroups pedGroups, IAgencies agencies, IGangTerritories gangTerritories, IZones zones)
     {
@@ -57,9 +61,13 @@ public class PlayerTasks
             UndergroundGunsTasks,
             VehicleExporterTasks
         };
+        ModItems = modItems;
+        Agencies = agencies;
     }
     public void Setup()
     {
+        ActiveTaskManager = new ActiveTaskManager(this);
+        ActiveTaskManager.Setup();
         foreach(IPlayerTaskGroup playerTaskGroup in PlayerTaskGroups)
         {
             playerTaskGroup.Setup();

@@ -442,7 +442,7 @@ public class CellPhone
     }
     public void AddPhoneResponse(string Name, string Message)
     {
-        string IconName = ContactList.FirstOrDefault(x => x.Name.ToLower() == Name.ToLower())?.IconName;
+        string IconName = ContactList.FirstOrDefault(x => x.Name.ToLower() == Name.ToLower())?.IconName ?? "CHAR_BLANK_ENTRY";
         PhoneResponses.Add(new PhoneResponse(Name, IconName, Message, Time.CurrentDateTime));
         NativeHelper.DisplayNotificationCustom(IconName, IconName, Name, "~o~Response", Message, NotificationIconTypes.RightJumpingArrow, false);
         PlayPhoneResponseSound();

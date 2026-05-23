@@ -156,6 +156,7 @@ public class PedExt : IComplexTaskable, ISeatAssignable
     public virtual bool IsAnimal { get; set; } = false;
     public virtual int DefaultCombatFlag { get; set; } = 0;
     public virtual int DefaultEnterExitFlag { get; set; } = 0;
+    public bool HasSpokenToPlayerAboutJob { get; set; }
 
 
     public virtual string InteractPrompt(IButtonPromptable player)
@@ -1095,7 +1096,7 @@ public class PedExt : IComplexTaskable, ISeatAssignable
         WillCallPoliceIntense = RandomItems.RandomPercent(CivilianSeriousCallPercentage());
         WillFightPolice = RandomItems.RandomPercent(CivilianFightPolicePercentage());
         WillCower = RandomItems.RandomPercent(CivilianCowerPercentage());
-
+        
         if(dispatchablePerson != null && dispatchablePerson.OverrideRacePlayerPercentage != -1)
         {
             WillRacePlayer = RandomItems.RandomPercent(dispatchablePerson.OverrideRacePlayerPercentage);
@@ -1105,7 +1106,7 @@ public class PedExt : IComplexTaskable, ISeatAssignable
         {
             WillRacePlayer = RandomItems.RandomPercent(Settings.SettingsManager.CivilianSettings.PercentageWillRacePlayer);
         }
-        
+
 
 
         CanSurrender = RandomItems.RandomPercent(Settings.SettingsManager.CivilianSettings.PossibleSurrenderPercentage);
@@ -1884,5 +1885,13 @@ ENDENUM
         PlayerPerception.SetFakeSeen();
         AddWitnessedPlayerCrime(Crimes.GetCrime(StaticStrings.PickPocketingCrimeID),player.Character.Position);
         //EntryPoint.WriteToConsole($"Pickpocket: {Pedestrian.Handle:X8} reacted to pickpocket, IsCop={IsCop}, IsGangMember={IsGangMember}, HatesPlayer={HatesPlayer}, WillCallPolice={WillCallPolice}, WillCallPoliceIntense={WillCallPoliceIntense}, HasCellPhone={HasCellPhone}");
+    }
+    public virtual void GrantPlayerMissions(PlayerTasks playerTasks, UIMenu uIMenu)
+    {
+        return;
+    }
+    public virtual bool CanGrantPlayerMission(PlayerTasks playerTasks)
+    {
+        return false;
     }
 }
