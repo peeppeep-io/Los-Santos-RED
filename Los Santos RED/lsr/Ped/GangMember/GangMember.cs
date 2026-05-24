@@ -3,6 +3,9 @@ using LosSantosRED.lsr.Interface;
 using Mod;
 using Rage;
 using Rage.Native;
+using RAGENativeUI.Elements;
+using RAGENativeUI;
+using System;
 using System.Collections.Generic;
 using System.Data.SqlTypes;
 using System.Drawing;
@@ -424,5 +427,19 @@ public class GangMember : PedExt, IWeaponIssuable
         PlayerPerception.SetFakeSeen();
         TimesInsultedByPlayer += 10;
         EntryPoint.WriteToConsole($"PED EVENT: GangMember {Pedestrian.Handle:X8} decreased gang reputation for {Gang.ID}, Amount=-350, marked as attacked", 3);
+    }
+    public override bool CanGrantPlayerMission(PlayerTasks playerTasks) => !HasSpokenToPlayerAboutJob && !playerTasks.HasTask(Gang.ContactName) && RandomItems.RandomPercent(Settings.SettingsManager.TaskSettings.GangMemberHasJobToGivePercentage);
+
+    public override void GrantPlayerMissions(PlayerTasks playerTasks, UIMenu uIMenu)
+    {
+        KeyValuePair<string, Action<Gang>> kv = playerTasks.GetGangJob(Gang);
+        UIMenuItem job = new UIMenuItem(kv.Key);
+        job.Activated += (sender, e) =>
+        {
+            kv.Value.Invoke(Gang);
+            job.Enabled = false;
+            HasSpokenToPlayerAboutJob = true;
+        };
+        uIMenu.AddItem(job);
     }
 }

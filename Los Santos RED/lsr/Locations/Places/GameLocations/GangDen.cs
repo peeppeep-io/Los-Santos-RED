@@ -93,7 +93,7 @@ public class GangDen : GameLocation, IRestableLocation, IAssaultSpawnable
         {
             return;
         }
-        if (!IsAvailableForPlayer)
+        if (!IsAvailableForPlayer && CanPlayerTemporarilyAccess())
         {
             Game.DisplayHelp($"{Name} is only available to associates and members");
             return;
@@ -115,7 +115,7 @@ public class GangDen : GameLocation, IRestableLocation, IAssaultSpawnable
     }
     public override void StandardInteract(LocationCamera locationCamera, bool isInside)
     {
-        if (!IsAvailableForPlayer)
+        if (!IsAvailableForPlayer && CanPlayerTemporarilyAccess())
         {
             Game.DisplayHelp($"{Name} is only available to associates and members");
             StoreCamera = locationCamera;
@@ -558,5 +558,6 @@ public class GangDen : GameLocation, IRestableLocation, IAssaultSpawnable
         possibleLocations.GangDens.Add(this);
         base.AddLocation(possibleLocations);
     }
+    private bool CanPlayerTemporarilyAccess() => (PickupMoney > 0 || !Player.PlayerTasks.HasTask(AssociatedGang.ContactName));
 }
 

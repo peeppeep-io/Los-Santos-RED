@@ -83,6 +83,7 @@ public class TaskSettings : ISettingsDefaultable
     public int DrugMeetMin { get; set; }
     public int DrugMeetMax { get; set; }
     public float DugMeetContactGangBackupSpawnPercentage { get; set; }
+    public float GangMemberHasJobToGivePercentage { get; set; }
 
     public TaskSettings()
     {
@@ -130,6 +131,7 @@ public class TaskSettings : ISettingsDefaultable
         DrugMeetMin = 200;
         DrugMeetMax = 2000;
         DugMeetContactGangBackupSpawnPercentage = 85f;
+        GangMemberHasJobToGivePercentage = 25f;
     }
     [OnDeserialized()]
     private void SetValuesOnDeserialized(StreamingContext context)

@@ -31,6 +31,7 @@ public class GangTasks : IPlayerTaskGroup
     private IWeapons Weapons;
     private IPedGroups PedGroups;
     private IAgencies Agencies;
+    private GangTaskRegistry GangTaskRegistry;
 
     private List<RivalGangAmbushTask> RivalGangAmbush = new List<RivalGangAmbushTask>();
     private List<RivalGangHitTask> RivalGangHits = new List<RivalGangHitTask>();
@@ -72,7 +73,8 @@ public class GangTasks : IPlayerTaskGroup
     }
     public void Setup()
     {
-
+        GangTaskRegistry = new GangTaskRegistry(this);
+        GangTaskRegistry.Setup();
     }
     public void Dispose()
     {
@@ -296,6 +298,75 @@ public class GangTasks : IPlayerTaskGroup
         EntryPoint.WriteToConsole("Gang Tasks OnTransactionMenuCreated");
         GangRacketeeringTasks.Where(x=> x.PlayerTask != null && x.PlayerTask.IsActive).ToList().ForEach(x => x.OnInteractionMenuCreated(gameLocation, menuPool, interactionMenu));
         GangBriberyTasks.Where(x => x.PlayerTask != null && x.PlayerTask.IsActive).ToList().ForEach(x => x.OnInteractionMenuCreated(gameLocation, menuPool, interactionMenu));
+    }
+    public KeyValuePair<string, Action<Gang>> GetGangJob(Gang gang)
+    {
+        return GangTaskRegistry.GetGangJob(gang);
+    }
+    public void StartGangRacketeering(Gang gang)
+    {
+        StartGangRacketeering(gang, gang.Contact);
+    }
+    public void StartCopHit(Gang gang)
+    {
+        Agency targetAgency = Agencies.GetRandomAgency(ResponseType.LawEnforcement);
+        int killRequirement = RandomItems.GetRandomNumberInt(1, 3);
+        StartCopHit(gang, killRequirement, gang.Contact, targetAgency);
+    }
+    public void StartGangHit(Gang gang)
+    {
+        int killRequirement = RandomItems.GetRandomNumberInt(1, 3);
+        Gang targetGang = Gangs.GetGang(gang.EnemyGangs.PickRandom());
+        StartGangHit(gang, killRequirement, gang.Contact, targetGang);
+    }
+    public void StartGangPizza(Gang gang)
+    {
+        StartGangPizza(gang, gang.Contact);
+    }
+    public void StartGangWheelman(Gang gang)
+    {
+        int robbersToSpawn = RandomItems.GetRandomNumberInt(1, 3);
+        string locationType = "Random";
+        bool requireAllMembersToFinish = RandomItems.RandomPercent(50);
+        StartGangWheelman(gang, gang.Contact, robbersToSpawn, locationType, requireAllMembersToFinish);
+    }
+    public void StartImpoundTheft(Gang gang)
+    {
+        StartImpoundTheft(gang, gang.Contact);
+    }
+    public void StartGangBodyDisposal(Gang gang)
+    {
+        StartGangBodyDisposal(gang, gang.Contact);
+    }
+    public void StartGangAmbush(Gang gang)
+    {
+        int killRequirement = RandomItems.GetRandomNumberInt(1, 3);
+        Gang targetGang = Gangs.GetGang(gang.EnemyGangs.PickRandom());
+        StartGangAmbush(gang, killRequirement, gang.Contact, targetGang);
+    }
+    public void StartGangVehicleTheft(Gang gang)
+    {
+        Gang targetGang = Gangs.GetGang(gang.EnemyGangs.PickRandom());
+        DispatchableVehicle targetVehicle = targetGang.Vehicles.Where(x => !x.RequiresDLC || Settings.SettingsManager.PlayerOtherSettings.AllowDLCVehicles).PickRandom();
+        VehicleNameSelect vns = new VehicleNameSelect(targetVehicle.ModelName);
+        vns.UpdateItems();
+        StartGangVehicleTheft(gang, gang.Contact, targetGang, targetVehicle.ModelName, vns.ToString());
+    }
+    public void StartGangBribery(Gang gang)
+    {
+        StartGangBribery(gang, gang.Contact);   
+    }
+    public void StartGangArson(Gang gang)
+    {
+        StartGangArson(gang, gang.Contact);
+    }
+    public void StartGangPickup(Gang gang)
+    {
+        StartGangPickup(gang, gang.Contact);
+    }
+    public void StartGangDelivery(Gang gang)
+    {
+        StartGangDelivery(gang, gang.Contact, ModItems.GetRandomItem(true, true).Name);
     }
 }
 

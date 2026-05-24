@@ -1,6 +1,7 @@
 ﻿using ExtensionsMethods;
 using LosSantosRED.lsr.Helper;
 using LosSantosRED.lsr.Interface;
+using LosSantosRED.lsr.Player.ActiveTasks;
 using Rage;
 using RAGENativeUI;
 using System;
@@ -353,5 +354,9 @@ public class PlayerTasks
     public void OnInteractionMenuCreated(GameLocation gameLocation, MenuPool menuPool, UIMenu interactionMenu)
     {
         PlayerTaskGroups.ForEach(x => x.OnInteractionMenuCreated(gameLocation, menuPool, interactionMenu));
+    }
+    public KeyValuePair<string, Action<Gang>> GetGangJob(Gang gang)
+    {
+        return GangTasks.GetGangJob(gang);
     }
 }

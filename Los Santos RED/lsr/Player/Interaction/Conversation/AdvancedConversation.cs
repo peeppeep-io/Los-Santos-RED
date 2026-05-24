@@ -30,9 +30,11 @@ public class AdvancedConversation
     private IDispatchablePeople DispatchablePeople;
     private IDispatchableVehicles DispatchableVehicles;
     private UIMenu RaceChallengeSubMenu;
+    private PlayerTasks PlayerTasks;
+    private UIMenu TasksSubMenu;
     public bool IsShowingMenu => ConversationMenu?.Visible == true;
     public AdvancedConversation(IInteractionable player, IAdvancedConversationable conversation_Simple, IModItems modItems, IZones zones, IShopMenus shopMenus, IPlacesOfInterest placesOfInterest, IGangs gangs, IGangTerritories gangTerritories, ISpeeches speeches, 
-        IEntityProvideable world, ILocationInteractable locationInteractable, IVehicleRaces vehicleRaces, IDispatchableVehicles dispatchableVehicles, IDispatchablePeople dispatchablePeople)
+        IEntityProvideable world, ILocationInteractable locationInteractable, IVehicleRaces vehicleRaces, IDispatchableVehicles dispatchableVehicles, IDispatchablePeople dispatchablePeople, PlayerTasks playerTasks)
     {
         Player = player;
         ConversationSimple = conversation_Simple;
@@ -48,6 +50,7 @@ public class AdvancedConversation
         VehicleRaces = vehicleRaces;
         DispatchableVehicles = dispatchableVehicles;
         DispatchablePeople = dispatchablePeople;
+        PlayerTasks = playerTasks;
     }
     public void Setup()
     {
@@ -136,6 +139,7 @@ public class AdvancedConversation
         QuestionSubMenu.RemoveBanner();
         AddDrugItemQuestions();
         AddGangItemQuestions();
+        AddJobQuestions();
     }
     public void StartTransactionWithPed()
     {
@@ -186,7 +190,7 @@ public class AdvancedConversation
             AskAboutGangTerritory(AskAboutGangTerritoryScroller.SelectedItem);
         };
         QuestionSubMenu.AddItem(AskAboutGangDenScroller);
-        QuestionSubMenu.AddItem(AskAboutGangTerritoryScroller);      
+        QuestionSubMenu.AddItem(AskAboutGangTerritoryScroller);
     }
     private void AskAboutGangDen(Gang gang)
     {
@@ -288,6 +292,16 @@ public class AdvancedConversation
             Dispose();
         }
         
+    }
+    private void AddJobQuestions()
+    {
+        PedExt ped = ConversationSimple.ConversingPed;
+        if (ped.CanGrantPlayerMission(PlayerTasks))
+        {
+            TasksSubMenu = MenuPool.AddSubMenu(ConversationMenu, "Ask about available jobs.");
+            TasksSubMenu.RemoveBanner();
+            ped.GrantPlayerMissions(PlayerTasks, TasksSubMenu);
+        }
     }
     private void ReplyUnknown()
     {
