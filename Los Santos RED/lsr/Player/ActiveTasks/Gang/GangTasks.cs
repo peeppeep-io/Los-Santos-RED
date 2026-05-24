@@ -299,74 +299,110 @@ public class GangTasks : IPlayerTaskGroup
         GangRacketeeringTasks.Where(x=> x.PlayerTask != null && x.PlayerTask.IsActive).ToList().ForEach(x => x.OnInteractionMenuCreated(gameLocation, menuPool, interactionMenu));
         GangBriberyTasks.Where(x => x.PlayerTask != null && x.PlayerTask.IsActive).ToList().ForEach(x => x.OnInteractionMenuCreated(gameLocation, menuPool, interactionMenu));
     }
-    public KeyValuePair<string, Action<Gang>> GetGangJob(Gang gang)
+    public KeyValuePair<string, Func<Gang, GangJobHelper>> GetGangJob(Gang gang)
     {
         return GangTaskRegistry.GetGangJob(gang);
     }
-    public void StartGangRacketeering(Gang gang)
+    public GangJobHelper StartGangRacketeering(Gang gang)
     {
-        StartGangRacketeering(gang, gang.Contact);
+        GangJobHelper gangJobHelper = new GangJobHelper();
+        gangJobHelper.Start = () => { StartGangRacketeering(gang, gang.Contact); };
+        return gangJobHelper;
     }
-    public void StartCopHit(Gang gang)
+    public GangJobHelper StartCopHit(Gang gang)
     {
         Agency targetAgency = Agencies.GetRandomAgency(ResponseType.LawEnforcement);
         int killRequirement = RandomItems.GetRandomNumberInt(1, 3);
-        StartCopHit(gang, killRequirement, gang.Contact, targetAgency);
+        GangJobHelper gangJobHelper = new GangJobHelper();
+        gangJobHelper.Description = $"Kill {killRequirement} of {targetAgency.FullName}.";
+        gangJobHelper.Start = () => { StartCopHit(gang, killRequirement, gang.Contact, targetAgency); };
+        return gangJobHelper;
     }
-    public void StartGangHit(Gang gang)
+    public GangJobHelper StartGangHit(Gang gang)
     {
         int killRequirement = RandomItems.GetRandomNumberInt(1, 3);
         Gang targetGang = Gangs.GetGang(gang.EnemyGangs.PickRandom());
-        StartGangHit(gang, killRequirement, gang.Contact, targetGang);
+        GangJobHelper gangJobHelper = new GangJobHelper();
+        gangJobHelper.Description = $"Kill {killRequirement} of {targetGang}";
+        gangJobHelper.Start = () => { StartGangHit(gang, killRequirement, gang.Contact, targetGang); };
+        return gangJobHelper;
     }
-    public void StartGangPizza(Gang gang)
+    public GangJobHelper StartGangPizza(Gang gang)
     {
-        StartGangPizza(gang, gang.Contact);
+        GangJobHelper gangJobHelper = new GangJobHelper();
+        gangJobHelper.Start = () => { StartGangPizza(gang, gang.Contact); };
+        return gangJobHelper;
     }
-    public void StartGangWheelman(Gang gang)
+    public GangJobHelper StartGangWheelman(Gang gang)
     {
         int robbersToSpawn = RandomItems.GetRandomNumberInt(1, 3);
         string locationType = "Random";
         bool requireAllMembersToFinish = RandomItems.RandomPercent(50);
-        StartGangWheelman(gang, gang.Contact, robbersToSpawn, locationType, requireAllMembersToFinish);
+        GangJobHelper gangJobHelper = new GangJobHelper();
+        gangJobHelper.Description = $"{robbersToSpawn} of our members need a getaway driver after they hit up a place.";
+        gangJobHelper.Start = () => { StartGangWheelman(gang, gang.Contact, robbersToSpawn, locationType, requireAllMembersToFinish); };
+        return gangJobHelper;
     }
-    public void StartImpoundTheft(Gang gang)
+    public GangJobHelper StartImpoundTheft(Gang gang)
     {
-        StartImpoundTheft(gang, gang.Contact);
+        
+        GangJobHelper gangJobHelper = new GangJobHelper();
+        gangJobHelper.Start = () => { StartImpoundTheft(gang, gang.Contact); };
+        return gangJobHelper;
     }
-    public void StartGangBodyDisposal(Gang gang)
+    public GangJobHelper StartGangBodyDisposal(Gang gang)
     {
-        StartGangBodyDisposal(gang, gang.Contact);
+        GangJobHelper gangJobHelper = new GangJobHelper();
+        gangJobHelper.Start = () => { StartGangBodyDisposal(gang, gang.Contact);  };
+        return gangJobHelper;
     }
-    public void StartGangAmbush(Gang gang)
+    public GangJobHelper StartGangAmbush(Gang gang)
     {
         int killRequirement = RandomItems.GetRandomNumberInt(1, 3);
         Gang targetGang = Gangs.GetGang(gang.EnemyGangs.PickRandom());
-        StartGangAmbush(gang, killRequirement, gang.Contact, targetGang);
+        
+        GangJobHelper gangJobHelper = new GangJobHelper();
+        gangJobHelper.Description = $"Ambush {killRequirement} members from {targetGang}";
+        gangJobHelper.Start = () => { StartGangAmbush(gang,killRequirement, gang.Contact,targetGang); };
+        return gangJobHelper;
     }
-    public void StartGangVehicleTheft(Gang gang)
+    public GangJobHelper StartGangVehicleTheft(Gang gang)
     {
         Gang targetGang = Gangs.GetGang(gang.EnemyGangs.PickRandom());
         DispatchableVehicle targetVehicle = targetGang.Vehicles.Where(x => !x.RequiresDLC || Settings.SettingsManager.PlayerOtherSettings.AllowDLCVehicles).PickRandom();
         VehicleNameSelect vns = new VehicleNameSelect(targetVehicle.ModelName);
         vns.UpdateItems();
-        StartGangVehicleTheft(gang, gang.Contact, targetGang, targetVehicle.ModelName, vns.ToString());
+        GangJobHelper gangJobHelper = new GangJobHelper();
+        gangJobHelper.Description = $"Steal a {vns} from {targetGang}.";
+        gangJobHelper.Start = () => { StartGangVehicleTheft(gang, gang.Contact, targetGang, targetVehicle.ModelName, vns.ToString()); };
+        return gangJobHelper;
     }
-    public void StartGangBribery(Gang gang)
+    public GangJobHelper StartGangBribery(Gang gang)
     {
-        StartGangBribery(gang, gang.Contact);   
+        GangJobHelper gangJobHelper = new GangJobHelper();
+        gangJobHelper.Start = () => { StartGangBribery(gang, gang.Contact); };
+        return gangJobHelper;
     }
-    public void StartGangArson(Gang gang)
+    public GangJobHelper StartGangArson(Gang gang)
     {
-        StartGangArson(gang, gang.Contact);
+        GangJobHelper gangJobHelper = new GangJobHelper();
+        gangJobHelper.Start = () => { StartGangArson(gang, gang.Contact); };
+        return gangJobHelper;
     }
-    public void StartGangPickup(Gang gang)
+    public GangJobHelper StartGangPickup(Gang gang)
     {
-        StartGangPickup(gang, gang.Contact);
+        GangJobHelper gangJobHelper = new GangJobHelper();
+        gangJobHelper.Start = () => { StartGangPickup(gang, gang.Contact); };
+        return gangJobHelper;
     }
-    public void StartGangDelivery(Gang gang)
+    public GangJobHelper StartGangDelivery(Gang gang)
     {
-        StartGangDelivery(gang, gang.Contact, ModItems.GetRandomItem(true, true).Name);
+        
+        GangJobHelper gangJobHelper = new GangJobHelper();
+        ModItem modItemToGet = ModItems.GetRandomItem(true, true);
+        gangJobHelper.Description = $"Need you to get us {modItemToGet.DisplayName}";
+        gangJobHelper.Start = () => { StartGangDelivery(gang, gang.Contact, modItemToGet.Name); };
+        return gangJobHelper;
     }
 }
 

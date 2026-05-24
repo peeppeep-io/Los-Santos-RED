@@ -15,7 +15,7 @@ namespace LosSantosRED.lsr.Player.ActiveTasks
         {
             GangTasks = gangTasks;
         }
-        Dictionary<string, Action<Gang>> PossibleGangMissions = new Dictionary<string, Action<Gang>>();
+        Dictionary<string, Func<Gang, GangJobHelper>> PossibleGangMissions = new Dictionary<string, Func<Gang, GangJobHelper>>();
         public void Setup()
         {
             PossibleGangMissions.Add("Collect protection money.", GangTasks.StartGangRacketeering);
@@ -34,9 +34,9 @@ namespace LosSantosRED.lsr.Player.ActiveTasks
 
 
         }
-        public KeyValuePair<string, Action<Gang>> GetGangJob(Gang gang)
+        public KeyValuePair<string, Func<Gang, GangJobHelper>> GetGangJob(Gang gang)
         {
-            KeyValuePair<string, Action<Gang>> kv = PossibleGangMissions.PickRandom();
+            KeyValuePair<string, Func<Gang, GangJobHelper>> kv = PossibleGangMissions.PickRandom();
             return kv;
         }
     }

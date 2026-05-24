@@ -355,7 +355,7 @@ public class PlayerTasks
     {
         PlayerTaskGroups.ForEach(x => x.OnInteractionMenuCreated(gameLocation, menuPool, interactionMenu));
     }
-    public KeyValuePair<string, Action<Gang>> GetGangJob(Gang gang)
+    public KeyValuePair<string, Func<Gang, GangJobHelper>> GetGangJob(Gang gang)
     {
         return GangTasks.GetGangJob(gang);
     }

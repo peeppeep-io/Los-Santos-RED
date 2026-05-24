@@ -11,6 +11,7 @@ using System.Data.SqlTypes;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
+using LosSantosRED.lsr.Player.ActiveTasks;
 
 public class GangMember : PedExt, IWeaponIssuable
 {
@@ -432,11 +433,13 @@ public class GangMember : PedExt, IWeaponIssuable
 
     public override void GrantPlayerMissions(PlayerTasks playerTasks, UIMenu uIMenu)
     {
-        KeyValuePair<string, Action<Gang>> kv = playerTasks.GetGangJob(Gang);
+        KeyValuePair<string, Func<Gang, GangJobHelper>> kv = playerTasks.GetGangJob(Gang);
         UIMenuItem job = new UIMenuItem(kv.Key);
+        GangJobHelper jobHelper = kv.Value.Invoke(Gang);
+        job.Description = jobHelper.Description;
         job.Activated += (sender, e) =>
         {
-            kv.Value.Invoke(Gang);
+            jobHelper.Start();
             job.Enabled = false;
             HasSpokenToPlayerAboutJob = true;
         };

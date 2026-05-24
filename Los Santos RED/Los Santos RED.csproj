@@ -308,6 +308,7 @@
     <Compile Include="lsr\Locations\Places\GameLocations\VehicleLocations\WheelVehicleClassModKitType.cs" />
     <Compile Include="lsr\Locations\Places\GameLocations\VehicleLocations\WheelVehicleModKitType.cs" />
     <Compile Include="lsr\Locations\Places\Interface\IPayoutDisbursable.cs" />
+    <Compile Include="lsr\Player\ActiveTasks\GangJobHelper.cs" />
     <Compile Include="lsr\Player\ActiveTasks\GangTaskRegistry.cs" />
     <Compile Include="lsr\Player\ActiveTasks\Gang\GangArsonTask.cs" />
     <Compile Include="lsr\Player\ActiveTasks\Gang\GangRacketeeringTask.cs" />
