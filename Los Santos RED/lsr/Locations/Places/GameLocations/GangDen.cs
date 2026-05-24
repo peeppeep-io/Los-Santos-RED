@@ -191,7 +191,10 @@ public class GangDen : GameLocation, IRestableLocation, IAssaultSpawnable
         {
             CreateRestInteractionMenu();
         }
-        CreateLoanMenuItems();
+        if(IsAvailableForPlayer)
+        {
+            CreateLoanMenuItems();
+        }
     }
 
     private void CreateLoanMenuItems()
