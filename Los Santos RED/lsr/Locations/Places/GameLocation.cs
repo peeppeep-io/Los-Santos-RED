@@ -49,7 +49,8 @@ public class GameLocation : ILocationDispatchable
     protected DateTime NextRestockTime;
     protected DateTime NextPriceRefreshTime;
     protected DateTime LastInteractTime;
-
+    protected string OriginalAssignedAssociationID;
+    protected bool HasBeenTakenOver;
 
     protected uint DistanceUpdateIntervalTime
     {
@@ -110,6 +111,7 @@ public class GameLocation : ILocationDispatchable
         Name = _Name;
         Description = _Description;
         FullName = Name;
+        OriginalAssignedAssociationID = AssignedAssociationID;
     }
     public string Name { get; set; }
     public string FullName { get; set; }
@@ -1533,9 +1535,56 @@ public class GameLocation : ILocationDispatchable
     {
         Interior?.OnStoredCashChanged(storedCash);
     }
-    //public virtual void UpdatePrompts()
-    //{
 
-    //}
+
+
+
+
+    public virtual void SetTakeoverGang(Gang newGang, Gang gangToReplace)
+    {
+        if(newGang == null)
+        {
+            return;
+        }
+
+        if(gangToReplace == null)
+        {
+            return;
+        }
+
+        if (gangToReplace.ID == AssignedAssociationID)
+        {
+            AssignedAssociationID = newGang.ID;
+            HasBeenTakenOver = true;
+        }
+        foreach(ConditionalGroup conditionalGroup in PossibleGroupSpawns)
+        {
+            conditionalGroup.UpdateAssociation(newGang.ID, gangToReplace.ID);
+        }
+        List<ConditionalLocation> totalList = new List<ConditionalLocation> { };
+        totalList.AddRange(PossiblePedSpawns.ToList());
+        totalList.AddRange(PossibleVehicleSpawns.ToList());
+        foreach (ConditionalLocation conditionalLocation in totalList)
+        {
+            conditionalLocation.UpdateAssociation(newGang.ID, gangToReplace.ID);
+        }
+    }
+
+    public virtual void ResetGangTakeover()
+    {
+        AssignedAssociationID = OriginalAssignedAssociationID;
+        HasBeenTakenOver = false;
+        foreach (ConditionalGroup conditionalGroup in PossibleGroupSpawns)
+        {
+            conditionalGroup.ResetAssociation();
+        }
+        List<ConditionalLocation> totalList = new List<ConditionalLocation> { };
+        totalList.AddRange(PossiblePedSpawns.ToList());
+        totalList.AddRange(PossibleVehicleSpawns.ToList());
+        foreach (ConditionalLocation conditionalLocation in totalList)
+        {
+            conditionalLocation.ResetAssociation();
+        }
+    }
 }
 

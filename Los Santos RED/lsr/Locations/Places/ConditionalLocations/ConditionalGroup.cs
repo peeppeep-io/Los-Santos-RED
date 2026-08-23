@@ -139,6 +139,26 @@ public class ConditionalGroup
         return RandomItems.RandomPercent(Percentage);
     }
 
+    public void UpdateAssociation(string updateToID, string toReplaceID)
+    {
+        List<ConditionalLocation> totalList = new List<ConditionalLocation> { };
+        totalList.AddRange(PossiblePedSpawns.ToList());
+        totalList.AddRange(PossibleVehicleSpawns.ToList());
+        foreach (ConditionalLocation conditionalLocation in totalList)
+        {
+            conditionalLocation.UpdateAssociation(updateToID, toReplaceID);
+        }
+    }
 
+    public void ResetAssociation()
+    {
+        List<ConditionalLocation> totalList = new List<ConditionalLocation> { };
+        totalList.AddRange(PossiblePedSpawns.ToList());
+        totalList.AddRange(PossibleVehicleSpawns.ToList());
+        foreach (ConditionalLocation conditionalLocation in totalList)
+        {
+            conditionalLocation.ResetAssociation();
+        }
+    }
 }
 

@@ -39,6 +39,15 @@ public class BlankLocationsData
         RedneckGang();
         VarriosGang();
         RandomPeds();
+        LoadHelpers();
+    }
+
+    private void LoadHelpers()
+    {
+        BlankLocationPlaces.AddRange(new List<BlankLocation>()
+        {
+            new BlankLocation(new Vector3(935.4767f, 47.33501f, 81.09575f), 137.8167f,"Diamond Casino Exterior","") { IsOnSPMap =false,IsOnMPMap = true,InteriorID = -3232 },
+        });
     }
 
     private void RailroadPolice()

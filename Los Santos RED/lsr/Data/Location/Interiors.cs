@@ -975,12 +975,23 @@ public class Interiors : IInteriors
                 IsTeleportEntry = true,
                 InteriorEgressPosition = new Vector3(1089.87f, 206.4465f, -48.99973f),
                 InteriorEgressHeading = 344.5287f,
-               MaxUpdateDistance = 200f,
+                MaxUpdateDistance = 200f,
                 RequestIPLs = new List<string>() 
                 {
-                    "vw_casino_carpark",
-                    "vw_casino_garage",
+
+
+                    //main casino floor
                     "vw_casino_main",
+
+
+                    //"vw_casino_carpark",//are these another tele interior?
+
+
+                    //"vw_casino_garage",//are these another tele interior?
+
+                    //"vw_casino_penthouse",//are these another tele interior?
+
+                    //General outside stuff
                     "hei_dlc_windows_casino",
                     "hei_dlc_casino_aircon",
                     "vw_dlc_casino_door",
@@ -10050,6 +10061,14 @@ public class Interiors : IInteriors
     {
         PossibleInteriors.GeneralInteriors.AddRange(new List<Interior>()
         {
+
+
+            new Interior(-3232,"Diamond Casino Exterior",new List<string>() {
+                "hei_dlc_windows_casino",
+                    "hei_dlc_casino_aircon",
+                    "vw_dlc_casino_door",
+                    "hei_dlc_casino_door",
+            } ) { IsTeleportEntry = false},
 
 
             new Interior(78338,"Maze Bank Arena",new List<string>() { "sp1_10_real_interior" },new List<string>() { "sp1_10_fake_interior" }),

@@ -177,6 +177,7 @@ public class GangSettings : ISettingsDefaultable
     public float FlyThroughWindshieldPercent { get; set; }
 
 
+    public bool DisableVanillaGangZoneTakeover { get; set; }
 
     public uint TerritoryRetaliationTimeToReturnMin { get; set; }
     public uint TerritoryRetaliationTimeToReturnMax { get; set; }
@@ -187,6 +188,9 @@ public class GangSettings : ISettingsDefaultable
     public uint TerritoryRetaliationTimeMin { get; set; }
     public uint TerritoryRetaliationTimeMax { get; set; }
     public float TerritoryRetaliationPercentageDecreaseBasedOnTimesPlayerDefended { get; set; }
+
+
+
 
     public GangSettings()
     {
@@ -355,7 +359,7 @@ public class GangSettings : ISettingsDefaultable
         TerritoryRetaliationTimeToReturnMax = 60000 * 10;
 
         TerritoryRetaliationPercentageDecreaseBasedOnTimesPlayerDefended = 5f;
-
+        DisableVanillaGangZoneTakeover = true;
 
     }
 

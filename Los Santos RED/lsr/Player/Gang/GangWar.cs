@@ -50,7 +50,6 @@ public class GangWar
     public void Start()
     {
         GameTimeStarted = Game.GameTime;
-
         SendWarStartedMessage();
         Player.RelationshipManager.GangRelationships.SetReputation(TargetGang, -2000, false);
     }

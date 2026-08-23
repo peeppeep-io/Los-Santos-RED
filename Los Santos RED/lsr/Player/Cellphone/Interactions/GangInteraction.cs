@@ -323,7 +323,14 @@ public class GangInteraction : IContactMenuInteraction
 
 
         GangWarTargetMenu = new UIMenuListScrollerItem<GangDisplay>("Target Gang", TargetGangDescription, GetGangDisplay());    
-        ZoneMenu = new UIMenuListScrollerItem<ZoneDisplay>("Zone", "Select the zone to takeover", new List<ZoneDisplay> { });
+        ZoneMenu = new UIMenuListScrollerItem<ZoneDisplay>("Zone", 
+            "Select the zone to takeover. " +
+            "~n~~r~Red~s~ Zones Include a Den." +
+            "~n~~c~Greyed Out~s~ Zones cannot be captured." +
+            
+            "~n~~n~ Install the AlternateConfigs\\RemoveVanillaGangs oiv and set GangSettings.DisableVanillaGangZoneTakeover to false to allow taking over vanilla zones." +
+            "~n~ If using ~h~Full Modern Traffic~s~ use the novanillagang_addon oiv to remove vanilla gang spawns.", 
+            new List<ZoneDisplay> { });
 
         UpdateGangWarZoneSelectorMenu();
 
@@ -890,6 +897,10 @@ public class GangInteraction : IContactMenuInteraction
         public override string ToString()
         {
             if(HasDen)
+            {
+                return $"~g~{Zone.DisplayName}~s~";
+            }
+            else if(Zone != null && Zone.DisableGangTakeover)
             {
                 return $"~r~{Zone.DisplayName}~s~";
             }

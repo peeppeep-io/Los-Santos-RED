@@ -564,21 +564,41 @@ public class GangDen : GameLocation, IRestableLocation, IAssaultSpawnable
         base.AddLocation(possibleLocations);
     }
 
-    public void SetTakeoverGang(Gang currentGang)
+    public override void SetTakeoverGang(Gang currentGang, Gang gangToReplace)
     {
+        if(currentGang == null || gangToReplace == null)
+        {
+            return;
+        }
         AssociatedGang = currentGang;
         AssignedAssociationID = currentGang.ID;
         IsAvailableForPlayer = false;
         DeactivateBlip();
         ActivateBlip(Time, World);
+
+
+
+
+        base.SetTakeoverGang(currentGang, gangToReplace);
+
     }
-    public void ResetGang()
+    public override void ResetGangTakeover()
     {
-        AssociatedGang = OriginalGang;
-        AssignedAssociationID = OriginalGang.ID;
+        if (OriginalGang != null)
+        {
+            AssociatedGang = OriginalGang;
+            AssignedAssociationID = OriginalGang.ID;
+        }
         IsAvailableForPlayer = true;
         DeactivateBlip();
         ActivateBlip(Time, World);
+
+
+
+
+
+        base.ResetGangTakeover();
+
     }
 }
 

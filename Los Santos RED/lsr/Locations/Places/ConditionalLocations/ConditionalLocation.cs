@@ -43,6 +43,7 @@ public class ConditionalLocation
     protected Interior Interior;
     protected IDispatchablePeople DispatchablePeople;
     protected IDispatchableVehicles DispatchableVehicles;
+    protected string OriginalAssociationID;
 
     public ConditionalLocation()
     {
@@ -293,6 +294,25 @@ public class ConditionalLocation
     public void SetVehicle(DispatchableVehicle dv)
     {
         DispatchableVehicle = dv;
+    }
+
+    public void UpdateAssociation(string updateToID, string toReplaceID)
+    {
+        if(string.IsNullOrEmpty(toReplaceID) || string.IsNullOrEmpty(updateToID))
+        {
+            return;
+        }
+        if(AssociationID != toReplaceID)
+        {
+            return;
+        }
+        OriginalAssociationID = AssociationID;
+        AssociationID = updateToID;
+    }
+
+    public void ResetAssociation()
+    {
+        OriginalAssociationID = AssociationID;
     }
 }
 
