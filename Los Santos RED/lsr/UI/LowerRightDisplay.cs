@@ -388,6 +388,9 @@ public class LowerRightDisplay
         if (DisplayablePlayer.CurrentVehicle != null && (DisplayablePlayer.IsInAutomobile || DisplayablePlayer.IsOnMotorcycle))//was game.localpalyer.character.isinanyvehicle(false)
         {
             CurrentSpeedDisplay = $" {UI.CurrentDefaultTextColor}" + "";
+
+
+
             if (DisplayablePlayer.CurrentVehicle.Vehicle.Exists() && DisplayablePlayer.CurrentVehicle.IsCar && !DisplayablePlayer.CurrentVehicle.Engine.IsRunning)
             {
                 CurrentSpeedDisplay = $" {UI.CurrentDefaultTextColor}" + "ENGINE OFF";
@@ -454,6 +457,14 @@ public class LowerRightDisplay
                     }
                 }
             }
+
+
+
+            if (Settings.SettingsManager.VehicleSettings.AllowSetTransmissionState && DisplayablePlayer.CurrentVehicle.Vehicle.Exists())
+            {
+                CurrentSpeedDisplay += $" [{DisplayablePlayer.CurrentVehicle.Transmission.TransmissionSymbol}] ";
+            }
+
             if (DisplayablePlayer.Violations.TrafficViolations.IsViolatingAnyTrafficLaws)
             {
                 CurrentSpeedDisplay += $" ~r~!{UI.CurrentDefaultTextColor}";

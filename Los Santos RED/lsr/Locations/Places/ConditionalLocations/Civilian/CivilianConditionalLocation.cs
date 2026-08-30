@@ -91,7 +91,7 @@ public class CivilianConditionalLocation : ConditionalLocation
         }
         else if (!string.IsNullOrEmpty(OverrideDispatchablePersonGroupID))
         {
-            DispatchablePerson = DispatchablePeople.GetPersonData(OverrideDispatchablePersonGroupID)?.RandomElementByWeight(x => x.CurrentSpawnChance(World.TotalWantedLevel));
+            DispatchablePerson = DispatchablePeople.GetPersonData(OverrideDispatchablePersonGroupID)?.Where(x => string.IsNullOrEmpty(RequiredPedGroup) || x.GroupName == RequiredPedGroup).RandomElementByWeight(x => x.CurrentSpawnChance(World.TotalWantedLevel));
         }
     }
     private void GetVehicleType()
@@ -102,7 +102,7 @@ public class CivilianConditionalLocation : ConditionalLocation
         }
         else if (!string.IsNullOrEmpty(OverrideDispatchableVehicleGroupID))
         {
-            DispatchableVehicle = DispatchableVehicles.GetVehicleData(OverrideDispatchableVehicleGroupID)?.RandomElementByWeight(x => x.CurrentSpawnChance(World.TotalWantedLevel, Settings.SettingsManager.PlayerOtherSettings.AllowDLCVehicles));
+            DispatchableVehicle = DispatchableVehicles.GetVehicleData(OverrideDispatchableVehicleGroupID)?.Where(x => string.IsNullOrEmpty(RequiredPedGroup) || x.GroupName == RequiredPedGroup).RandomElementByWeight(x => x.CurrentSpawnChance(World.TotalWantedLevel, Settings.SettingsManager.PlayerOtherSettings.AllowDLCVehicles));
         }
     }
 }

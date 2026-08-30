@@ -1684,6 +1684,18 @@ namespace Mod
                 }
                 //CreateOwnedVehicleBlip();
 
+
+                //if(PreviousVehicle != null && Settings.SettingsManager.VehicleSettings.AllowSetTransmissionState)
+                //{
+                //    PreviousVehicle.Transmission.SetParked();
+                //}
+
+                //if (CurrentVehicle != null && Settings.SettingsManager.VehicleSettings.AllowSetTransmissionState)
+                //{
+                //    CurrentVehicle.Transmission.SetParked();
+                //}
+
+
                 if (!Settings.SettingsManager.PlayerOtherSettings.AllowMobileRadioOnFoot && IsMobileRadioEnabled && !ActivityManager.IsDancing)
                 {
                     IsMobileRadioEnabled = false;

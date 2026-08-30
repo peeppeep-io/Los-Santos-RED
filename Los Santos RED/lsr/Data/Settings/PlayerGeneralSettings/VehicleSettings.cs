@@ -161,7 +161,8 @@ public class VehicleSettings : ISettingsDefaultable
     public float HotwirePoliceZoneWidthMax { get; set; }
     public float HotwirePoliceFillSpeedMin { get; set; }
     public float HotwirePoliceFillSpeedMax { get; set; }
-
+    public bool AllowSetTransmissionState { get; set; }
+    public float TransmissionDriveCreepPercentage { get; set; }
 
     [OnDeserialized()]
     private void SetValuesOnDeserialized(StreamingContext context)
@@ -302,6 +303,8 @@ public class VehicleSettings : ISettingsDefaultable
         HotwirePoliceFillSpeedMin = 0.75f;
         HotwirePoliceFillSpeedMax = 1.25f;
 
+        AllowSetTransmissionState = false;
 
+        TransmissionDriveCreepPercentage = 0.3f;
     }
 }

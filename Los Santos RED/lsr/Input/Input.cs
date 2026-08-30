@@ -47,11 +47,14 @@ namespace LosSantosRED.lsr
         private uint GameTimeLastPressedStartTransaction;
         private uint GameTimeLastPressedYell;
         private uint GameTimeLastPressedGroupModeToggle;
+        private uint GameTimeLastPressedTransmissionToggle;
 
         private bool IsPressingSurrender => IsKeyDownSafe(Settings.SettingsManager.KeySettings.SurrenderKey, false) && IsKeyDownSafe(Settings.SettingsManager.KeySettings.SurrenderKeyModifier, true);
         private bool IsPressingSprint => IsKeyDownSafe(Settings.SettingsManager.KeySettings.SprintKey, false) && IsKeyDownSafe(Settings.SettingsManager.KeySettings.SprintKeyModifier, true);
         private bool IsPressingRightIndicator => IsKeyDownSafe(Settings.SettingsManager.KeySettings.RightIndicatorKey, false) && IsKeyDownSafe(Settings.SettingsManager.KeySettings.RightIndicatorKeyModifer, true);
         public bool IsPressingEngineToggle => IsKeyDownSafe(Settings.SettingsManager.KeySettings.EngineToggle, false) && IsKeyDownSafe(Settings.SettingsManager.KeySettings.EngineToggleModifier, true);
+        public bool IsPressingTransmissionToggle => IsKeyDownSafe(Settings.SettingsManager.KeySettings.TransmissionToggle, false) && IsKeyDownSafe(Settings.SettingsManager.KeySettings.TransmissionToggleModifier, true);
+
         private bool IsPressingDoorClose => IsKeyDownSafe(Settings.SettingsManager.KeySettings.ManualDriverDoorClose, false) && IsKeyDownSafe(Settings.SettingsManager.KeySettings.ManualDriverDoorCloseModifier, true);
         private bool IsPressingLeftIndicator => IsKeyDownSafe(Settings.SettingsManager.KeySettings.LeftIndicatorKey, false) && IsKeyDownSafe(Settings.SettingsManager.KeySettings.LeftIndicatorKeyModifer, true);
         private bool IsPressingHazards => IsKeyDownSafe(Settings.SettingsManager.KeySettings.HazardKey, false) && IsKeyDownSafe(Settings.SettingsManager.KeySettings.HazardKeyModifer, true);
@@ -76,6 +79,8 @@ namespace LosSantosRED.lsr
         private bool RecentlyPressedDoorClose => Game.GameTime - GameTimeLastPressedDoorClose <= 500;
         private bool RecentlyPressedIndicators => Game.GameTime - GameTimeLastPressedIndicators <= 500;
         private bool RecentlyPressedEngineToggle => Game.GameTime - GameTimeLastPressedEngineToggle <= 500;
+
+        private bool RecentlyPressedTransmissionToggle => Game.GameTime - GameTimeLastPressedTransmissionToggle <= 500;
         private bool RecentlyPressedAltMenu => Game.GameTime - GameTimeLastPressedAltMenu <= 200;
         private bool RecentlyPressedSimplePhone => Game.GameTime - GameTimeLastPressedSimplePhone <= 500;
         private bool RecentlyPressedYell => Game.GameTime - GameTimeLastPressedYell <= 500;
@@ -315,6 +320,20 @@ namespace LosSantosRED.lsr
                     }
 
                 }
+
+
+
+                if (!RecentlyPressedTransmissionToggle)
+                {
+                    if (IsPressingTransmissionToggle && Settings.SettingsManager.VehicleSettings.AllowSetTransmissionState)
+                    {
+                        Player.ActivityManager.ToggleTransmissionState();
+                        GameTimeLastPressedTransmissionToggle = Game.GameTime;
+                    }
+                }
+
+
+
                 if (!RecentlyPressedIndicators)
                 {
                     if (Settings.SettingsManager.VehicleSettings.AllowSetIndicatorState)

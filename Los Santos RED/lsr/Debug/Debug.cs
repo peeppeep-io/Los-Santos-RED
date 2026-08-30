@@ -621,6 +621,30 @@ public class Debug
 
     private void DebugNumpad4()
     {
+        if (Player.CurrentVehicle != null && Player.CurrentVehicle.Vehicle.Exists())
+        {
+            EntryPoint.WriteToConsole($"CurrentGear: {Player.CurrentVehicle.Vehicle.CurrentGear} Forward Vector:{Player.CurrentVehicle.Vehicle.ForwardVector}");
+        }
+
+        GameFiber.StartNew(delegate
+        {
+            while (!Game.IsKeyDown(Keys.O) && EntryPoint.ModController.IsRunning)
+            {
+                if (1==1)//!Game.IsControlPressed(0, GameControl.VehicleAccelerate))// && !NativeFunction.Natives.IS_DISABLED_CONTROL_PRESSED<bool>(0, 71))
+                {
+                    NativeFunction.Natives.SET_CONTROL_VALUE_NEXT_FRAME(0, (int)GameControl.VehicleAccelerate, Settings.SettingsManager.VehicleSettings.TransmissionDriveCreepPercentage);
+
+
+                    EntryPoint.WriteToConsole($"SET_CONTROL_VALUE_NEXT_FRAME");
+                    //EntryPoint.WriteToConsole("TRANSMISSION DRIVE CREEP RUNNING! 2");
+                }
+                GameFiber.Yield();
+            }
+
+        }, "Run Debug Logic");
+        GameFiber.Sleep(500);
+
+
 
 
 
@@ -659,23 +683,23 @@ end
 
 
 	end*/
-        InitializeTv();
+        //InitializeTv();
 
         //uint modelHash = 4330783;//4330783,new Vector3(63.19641f, -78.62871f, -73.48909f)//m25_2_prop_m52_mansiontv 4330783
         //Vector3 pos = new Vector3(63.19641f, -78.62871f, -73.48909f);
         //Entity tvEntity = NativeFunction.Natives.GET_CLOSEST_OBJECT_OF_TYPE<Entity>(pos.X, pos.Y, pos.Z, 0.05, modelHash, 0, 0, 0);
         //int handle = CreateNamedRenderTargetForModel("tvscreen", modelHash);
-        GameFiber.StartNew(delegate
-        {      
-            while (!Game.IsKeyDown(Keys.O))
-            {
-                //NativeFunction.Natives.SET_TEXT_RENDER_ID(handle);
-                DrawLoop();
-                GameFiber.Yield();
-            }
+        //GameFiber.StartNew(delegate
+        //{      
+        //    while (!Game.IsKeyDown(Keys.O))
+        //    {
+        //        //NativeFunction.Natives.SET_TEXT_RENDER_ID(handle);
+        //        DrawLoop();
+        //        GameFiber.Yield();
+        //    }
 
-        }, "Run Debug Logic");
-        GameFiber.Sleep(500);
+        //}, "Run Debug Logic");
+        //GameFiber.Sleep(500);
 
 
 

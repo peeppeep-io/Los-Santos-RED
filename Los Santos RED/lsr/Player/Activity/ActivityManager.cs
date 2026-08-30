@@ -2364,6 +2364,34 @@ public class ActivityManager
         }
     }
 
+
+
+
+
+    public void ToggleTransmissionState()
+    {
+        if (Player.CurrentVehicle == null)
+        {
+            return;
+        }
+        if (Player.CurrentVehicle.IsHotWireLocked)
+        {
+            return;
+        }
+        if (!Player.IsDriver)
+        {
+            Game.DisplayHelp("Cannot change transmission status from current seat");
+            return;
+        }
+        if (IsPerformingActivity || !Settings.SettingsManager.VehicleSettings.PlayControlAnimations)
+        {
+            Player.CurrentVehicle?.Transmission.ShiftTransmissionDown();
+        }
+        else
+        {
+            DoSimpleVehicleAnimation(new Action(() => Player.CurrentVehicle?.Transmission.ShiftTransmissionDown()), "veh@std@ds@base", "start_engine", 500);
+        }
+    }
 }
 
 

@@ -85,6 +85,7 @@ namespace LSR.Vehicles
         public FuelTank FuelTank { get; set; }
         public Windows Windows { get; set; }
         public Doors Doors { get; set; }
+        public Transmission Transmission { get; set; }
         public VehicleBodyManager VehicleBodyManager { get; private set; }
         public WeaponStorage WeaponStorage { get; private set; }
         public Color DescriptionColor { get; set; }
@@ -519,6 +520,7 @@ namespace LSR.Vehicles
             Indicators = new Indicators(this);
             FuelTank = new FuelTank(this, Settings);
             Engine = new Engine(this, Settings);
+            Transmission = new Transmission(this, Settings);
             Windows = new Windows(this, settings);
             Doors = new Doors(this, settings);
             VehicleBodyManager = new VehicleBodyManager(this, Settings);
@@ -803,6 +805,10 @@ namespace LSR.Vehicles
                     if (Settings.SettingsManager.VehicleSettings.AllowSetIndicatorState)
                     {
                         Indicators.Update();
+                    }
+                    if(Settings.SettingsManager.VehicleSettings.AllowSetTransmissionState)
+                    {
+                        Transmission.Update(driver);
                     }
                     if (Vehicle.Exists())
                     {

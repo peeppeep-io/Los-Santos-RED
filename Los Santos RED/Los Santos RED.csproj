@@ -870,6 +870,8 @@
     <Compile Include="lsr\UI\TopRightMenu.cs" />
     <Compile Include="lsr\Vehicle\Components\Door.cs" />
     <Compile Include="lsr\Vehicle\Components\Doors.cs" />
+    <Compile Include="lsr\Vehicle\Components\eTransmissionState.cs" />
+    <Compile Include="lsr\Vehicle\Components\Transmission.cs" />
     <Compile Include="lsr\Vehicle\Components\Window.cs" />
     <Compile Include="lsr\Vehicle\Components\Windows.cs" />
     <Compile Include="lsr\Vehicle\Menu\TaxiInteractionMenu.cs" />
