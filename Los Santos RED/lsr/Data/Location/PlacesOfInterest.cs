@@ -2844,7 +2844,7 @@ public class PlacesOfInterest : IPlacesOfInterest
             //    NonGangFightersGroup = "FightClubPeds",
             //},
 #if DEBUG
-            new FightClub(new Vector3(-97.11468f, -1013.614f, 27.27522f), 162.828f, "Construction Rumble", "Fight at the top of a skyscraper","")
+            new FightClub(new Vector3(-145.1138f, -958.579f, 269.1349f), 125.4617f, "Construction Rumble", "Fight at the top of a skyscraper","")
             {
                 FightClubArena = new FightClubArena(new Vector3(-149.5824f, -960.326f, 269.1349f),
                                                 new List<SpawnPlace>() {
@@ -2864,7 +2864,9 @@ public class PlacesOfInterest : IPlacesOfInterest
                                             }),
                 OpenTime = 0,
                 CloseTime = 24,
+                DisableRegularInteract = true,
                 DisableGangFights = true,
+                InteriorID = -2006,
                 NonGangFightersGroup = "FightClubPeds",
             },
             new FightClub(new Vector3(1464.842f, 1047.021f, 114.334f), 0.1439041f, "Cartel Dogfights", "Bet on dog fights","")
@@ -2889,6 +2891,8 @@ public class PlacesOfInterest : IPlacesOfInterest
                 CloseTime = 24,
                 DisablePlayerFights = true,
                 DisableGangFights = true,
+                DisableRegularInteract = true,
+                InteriorID = -2005,
                 NonGangFightersGroup = "DogFightPeds",
             },
 #endif

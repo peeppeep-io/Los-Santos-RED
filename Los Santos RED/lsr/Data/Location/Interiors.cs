@@ -80,6 +80,7 @@ public class Interiors : IInteriors
         BarberShops();
         ClothingShops();
         Businesses();
+        FightClubs();
         Serialization.SerializeParam(PossibleInteriors, ConfigFileName);
     }
     public List<Interior> GetAllPlaces()
@@ -963,6 +964,20 @@ public class Interiors : IInteriors
 //new Vector3(981.5935f, -98.13846f, 74.97108f), 222.2108f, "Name", "Description"),  //lostmcpiss1
                 },
             },
+        });
+    }
+    private void FightClubs()
+    {
+        PossibleInteriors.FightClubInteriors.AddRange(new List<FightClubInterior>()
+        {
+            new FightClubInterior(-2005,"Cartel Dogfights"){ 
+                FightClubInteracts = new List<FightClubInteract> { 
+                    new FightClubInteract("carteldogfightInteract1",new Vector3(1464.851f, 1046.678f, 114.3341f), 177.3881f,"Start Fight"),// new Vector3(1464.842f, 1047.021f, 114.334f), 0.1439041f,"Start Fight") ,
+                } },
+            new FightClubInterior(-2006,"Construction Rumble"){
+                FightClubInteracts = new List<FightClubInteract> {
+                    new FightClubInteract("rooffightInteract1",new Vector3(-145.1138f, -958.579f, 269.1349f), 125.4617f,"Start Fight") ,
+                } },
         });
     }
     private void GamblingDens()

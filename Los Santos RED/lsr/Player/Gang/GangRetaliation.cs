@@ -47,13 +47,9 @@ public class GangRetaliation
         Settings = settings;
         TimesPlayerDefendedRetaliation = timesPlayerDefendedRetaliation;
     }
-    public bool HasRetaliationStarted { get; private set; }
-
-
-
-    public bool IsRetaliationWarActive { get; private set; }
+    public bool IsWarfareActive { get; private set; }
     public bool IsEnded { get; private set; }
-    public bool HasPlayerReturnedToZone { get; private set; }
+    public bool HasPlayerEnteredArea { get; private set; }
     public Gang TargetGang { get; private set; }
     public List<Zone> ZonesToAttack { get; private set; } = new List<Zone>();
     private bool IsPlayerInZone()
@@ -139,11 +135,11 @@ public class GangRetaliation
             EntryPoint.WriteToConsole("PLAYER LOST RETALIATION SINCE THEY DIED OR GOT BUSTED");
             return;
         }
-        if (!HasRetaliationStarted)
+        if (!IsWarfareActive)
         {
             CheckRetaliationStart();
         }
-        if (!HasRetaliationStarted)
+        if (!IsWarfareActive)
         {
             return;
         }
@@ -152,7 +148,7 @@ public class GangRetaliation
 
     private void UpdateActive()
     {
-        if(!HasPlayerReturnedToZone)
+        if(!HasPlayerEnteredArea)
         {
             UpdateBeforeReturnedToZone();
         }
@@ -190,8 +186,8 @@ public class GangRetaliation
 
     private void OnRetaliationStarted()
     {
-        HasRetaliationStarted = true;
-        HasPlayerReturnedToZone = false;
+        IsWarfareActive = true;
+        HasPlayerEnteredArea = false;
         GameTimeStarted = Game.GameTime;
         SendStartMessage();
         EntryPoint.WriteToConsole("GANG RETALIATION EVENT: RETALIATION STARTED");
@@ -213,14 +209,14 @@ public class GangRetaliation
         GameTimeEnded = Game.GameTime;
         SendLostMessage();
         GangTerritoryManager.EndRetaliation(this, false);
-        HasRetaliationStarted = false;
+        IsWarfareActive = false;
         EntryPoint.WriteToConsole("GANG RETALIATION EVENT: PLAYER LOST");
     }
     private void OnPlayerWon()
     {
         //GameTimeEnded = Game.GameTime;
         //IsEnded = true;
-        HasRetaliationStarted = false;
+        IsWarfareActive = false;
         SendWonMessage();
         //GangTerritoryManager.EndRetaliation(this, true);
         TimesPlayerDefendedRetaliation++;
@@ -241,7 +237,7 @@ public class GangRetaliation
 
     private void OnPlayerReturnedToZoneFirstTime()
     {
-        HasPlayerReturnedToZone = true;
+        HasPlayerEnteredArea = true;
         GameTimeReturnedToZone = Game.GameTime;
         SendReturnedMessage();
         EntryPoint.WriteToConsole("GANG RETALIATION EVENT: PLAYER RETRUNED TO ZONE FOR FIRST TIME");

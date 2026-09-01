@@ -45,6 +45,8 @@ public class FightClubFight
     private AIFightClubFighter SelectedOrBetFighter;
     private AIFightClubFighter PreviousWinner;
     private List<DispatchablePerson> NonGangFightersGroup;
+    private bool IsShowingActiveFightMenu;
+    private UIMenu ActiveFightMenu;
 
     public bool IsFightActive { get;private set; }
     public bool IsEnded { get; private set; }   
@@ -162,9 +164,36 @@ public class FightClubFight
 
         if(IsFightActive)
         {
+            if (!IsShowingActiveFightMenu)
+            {
+                Player.ButtonPrompts.AttemptAddPrompt("FightMenu", "Fight Options", "FightMenu", Settings.SettingsManager.KeySettings.InteractNegativeOrNo, 999);
+            }
+            else
+            {
+                Player.ButtonPrompts.RemovePrompt("FightMenu");
+            }
+            if (Player.ButtonPrompts.IsPressed("FightMenu") && !IsShowingActiveFightMenu)
+            {
+                ShowActiveFightMenu();
+            }
+
+
             HighlightSelectedOrBetFighter();
         }
+        else
+        {
+            Player.ButtonPrompts.RemovePrompt("FightMenu");
+        }
     }
+
+    private void ShowActiveFightMenu()
+    {
+        MenuPool.Clear();
+        ActiveFightMenu = new UIMenu("Fight Options", "Select fight options");
+        MenuPool.Add(ActiveFightMenu);
+        ActiveFightMenu.Visible = true;
+    }
+
     public void BeginFirstFight()
     {
         SpawnRingItems();
@@ -452,6 +481,9 @@ public class FightClubFight
     private void ShowBettingMenu()
     {
         FinishedBetting = false;
+        MenuPool.Clear();
+
+
         BetMenu = new UIMenu("Bet", "Bet on the fighter to win");
         MenuPool.Add(BetMenu);
         int MaxBet = FightClub == null ? 5000 : FightClub.MaxBet;

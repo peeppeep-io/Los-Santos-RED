@@ -14,27 +14,28 @@ public class GangWar
     
     private GangTerritoryManager GangTerritoryManager;
     private IGangTerritoryManageable Player;
-
-    public GangWar(IGangTerritoryManageable player, Gang targetGang, List<Zone> zonesToAttack, int casualityLimit, GangTerritoryManager gangTerritoryManager)
+    private IEntityProvideable World;
+    public GangWar(IGangTerritoryManageable player, Gang targetGang, List<Zone> zonesToAttack, int casualityLimit, GangTerritoryManager gangTerritoryManager, IEntityProvideable world)
     {
         Player = player;
         TargetGang = targetGang;
         ZonesToAttack = zonesToAttack;
         CasualityLimit = casualityLimit;
         GangTerritoryManager = gangTerritoryManager;
+        World = world;
     }
-
-
     public Gang TargetGang { get; set; }
     public int Casualites { get; set; }
     public bool IsPlayerVictorius { get; private set; }
-    public bool IsWarEnded { get; private set; }
+    public bool IsEnded { get; private set; }
+    public bool IsWarfareActive { get; private set; }
+    public bool HasPlayerEnteredArea { get; private set; }
     public int CasualityLimit { get; private set; }
     public uint GameTimeEnded { get; private set; }
     public List<Zone> ZonesToAttack { get; set; }
     public void SetOutcome(bool isPlayerVictory)
     {
-        IsWarEnded = true;
+        IsEnded = true;
         GameTimeEnded = Game.GameTime;
         IsPlayerVictorius = isPlayerVictory;
         GangTerritoryManager.EndGangWar(TargetGang, IsPlayerVictorius);
@@ -53,13 +54,31 @@ public class GangWar
         SendWarStartedMessage();
         Player.RelationshipManager.GangRelationships.SetReputation(TargetGang, -2000, false);
     }
+    public void Setup()
+    {
+        if (TargetGang == null)
+        {
+            IsEnded = true;
+            return;
+        }
+        ResetTimedItems();
+        EntryPoint.WriteToConsole($"GANG WAR SETUP:");
+    }
+
+    private void ResetTimedItems()
+    {
+        GameTimeEnded = 0;
+        IsWarfareActive = false;
+        HasPlayerEnteredArea = false;
+    }
+
     public void AddCasuality()
     {
         Casualites++;
     }
     public void Update(IGangTerritoryManageable Player)
     {
-        if(IsWarEnded)
+        if(IsEnded)
         {
             return;
         }
@@ -72,10 +91,73 @@ public class GangWar
             EntryPoint.WriteToConsole("GANG WAR IS OVER THE CASUALITY LIMIT, SET PLAYER WINS");
             SetOutcome(true);
         }
-        EntryPoint.WriteToConsole($"GangWar UPDATED {Casualites} OF {CasualityLimit} IsWarEnded{IsWarEnded}");
+        CheckLocationItems();
+        CheckWarefareItems();
+        EntryPoint.WriteToConsole($"GangWar UPDATED {Casualites} OF {CasualityLimit} IsWarEnded{IsEnded} IsWarfareActive{IsWarfareActive} HasPlayerEnteredArea{HasPlayerEnteredArea}");
     }
 
+    private void CheckWarefareItems()
+    {
+        if(TargetGang == null)
+        {
+            return;
+        }
+        if (IsWarfareActive)
+        {
+            return;
+        }
+        GangReputation gr = Player.RelationshipManager.GangRelationships.GetReputation(TargetGang);
+        if(gr != null && gr.RecentlyAttacked)
+        {
+            IsWarfareActive = true;
+            HasPlayerEnteredArea = true;
+            EntryPoint.WriteToConsole($"GANGWAR: YOU RECENTLY ATTACKED {TargetGang.ShortName}");
+            return;
+        }
+        List<GangMember> targetGangMembers = World.Pedestrians.GangMemberList.Where(x => x.Gang != null && x.Gang.ID.ToLower() == TargetGang.ID.ToLower()).ToList();
+        foreach(GangMember gm in targetGangMembers)
+        {
+            if(gm.CanRecognizePlayer || gm.HasBeenHurtByPlayer)
+            {
+                IsWarfareActive = true;
+                HasPlayerEnteredArea = true;
+                EntryPoint.WriteToConsole($"GANGWAR: YOU HAVE BEEN RECOGNIZED OR HURT A MEMBER OF {TargetGang.ShortName}");
+                return;
+            }
+        }
+    }
 
+    private void CheckLocationItems()
+    {
+        if(HasPlayerEnteredArea)
+        {
+            return;
+        }
+
+        if (IsPlayerInZone())
+        {
+            HasPlayerEnteredArea = true;
+            EntryPoint.WriteToConsole("GangWar Player has entered the zone for the first time");
+        }
+    }
+
+    private bool IsPlayerInZone()
+    {
+        if (Player.CurrentLocation.CurrentZone == null)
+        {
+            return false;
+        }
+        Zone zoneToReturnTo = ZonesToAttack.FirstOrDefault();
+        if (zoneToReturnTo == null)
+        {
+            return false;
+        }
+        if (Player.CurrentLocation.CurrentZone.InternalGameName.ToLower() == zoneToReturnTo.InternalGameName.ToLower())
+        {
+            return true;
+        }
+        return false;
+    }
     private void SendWarStartedMessage()
     {
         List<string> Replies = new List<string>() {

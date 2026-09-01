@@ -48,6 +48,10 @@ namespace LosSantosRED.lsr
         private uint GameTimeLastPressedYell;
         private uint GameTimeLastPressedGroupModeToggle;
         private uint GameTimeLastPressedTransmissionToggle;
+        private uint GameTimeLastReleasedAccelerate;
+        private uint GameTimeLastPressedAccelerate;
+        private uint GameTimeLastReleasedBrake;
+        private uint GameTimeLastPressedBrake;
 
         private bool IsPressingSurrender => IsKeyDownSafe(Settings.SettingsManager.KeySettings.SurrenderKey, false) && IsKeyDownSafe(Settings.SettingsManager.KeySettings.SurrenderKeyModifier, true);
         private bool IsPressingSprint => IsKeyDownSafe(Settings.SettingsManager.KeySettings.SprintKey, false) && IsKeyDownSafe(Settings.SettingsManager.KeySettings.SprintKeyModifier, true);
@@ -80,7 +84,7 @@ namespace LosSantosRED.lsr
         private bool RecentlyPressedIndicators => Game.GameTime - GameTimeLastPressedIndicators <= 500;
         private bool RecentlyPressedEngineToggle => Game.GameTime - GameTimeLastPressedEngineToggle <= 500;
 
-        private bool RecentlyPressedTransmissionToggle => Game.GameTime - GameTimeLastPressedTransmissionToggle <= 500;
+        private bool RecentlyPressedTransmissionToggle => Game.GameTime - GameTimeLastPressedTransmissionToggle <= 200;
         private bool RecentlyPressedAltMenu => Game.GameTime - GameTimeLastPressedAltMenu <= 200;
         private bool RecentlyPressedSimplePhone => Game.GameTime - GameTimeLastPressedSimplePhone <= 500;
         private bool RecentlyPressedYell => Game.GameTime - GameTimeLastPressedYell <= 500;
@@ -387,7 +391,67 @@ namespace LosSantosRED.lsr
             {
                 heldVehicleEnter = false;
             }
+
+
+            CheckTransmissionTaps();
+
+
+
         }
+
+        private void CheckTransmissionTaps()
+        {
+            if (!Settings.SettingsManager.VehicleSettings.AllowSetTransmissionState)
+            {
+                return;
+            }
+            if(!Player.IsDriver)
+            {
+                return;
+            }
+            if (Game.IsControlJustReleased(0, GameControl.VehicleAccelerate) || NativeFunction.Natives.IS_DISABLED_CONTROL_JUST_RELEASED<bool>(0, 71))
+            {
+                GameTimeLastReleasedAccelerate = Game.GameTime;
+                GameTimeLastPressedAccelerate = 0;
+            }
+
+            if (Game.IsControlJustPressed(0, GameControl.VehicleAccelerate) || NativeFunction.Natives.IS_DISABLED_CONTROL_JUST_PRESSED<bool>(0, 71))
+            {
+                GameTimeLastPressedAccelerate = Game.GameTime;
+            }
+
+
+
+            if (Game.IsControlJustReleased(0, GameControl.VehicleBrake) || NativeFunction.Natives.IS_DISABLED_CONTROL_JUST_RELEASED<bool>(0, 72))
+            {
+                GameTimeLastReleasedBrake = Game.GameTime;
+                GameTimeLastPressedBrake = 0;
+            }
+
+            if (Game.IsControlJustPressed(0, GameControl.VehicleBrake) || NativeFunction.Natives.IS_DISABLED_CONTROL_JUST_PRESSED<bool>(0, 72))
+            {
+                GameTimeLastPressedBrake = Game.GameTime;
+            }
+
+
+
+            if (GameTimeLastReleasedAccelerate != 0 && GameTimeLastPressedAccelerate !=0 && GameTimeLastPressedAccelerate - GameTimeLastReleasedAccelerate <= 250)
+            {
+                EntryPoint.WriteToConsole($"YOU DOUBLE TAPPED ACCELERATE Press:{GameTimeLastPressedAccelerate} Rel:{GameTimeLastReleasedAccelerate} Tot:{GameTimeLastPressedAccelerate - GameTimeLastReleasedAccelerate}");
+                Player.ActivityManager.SetTransmissionState(eTransmissionState.Drive);
+            }
+
+
+            if (GameTimeLastReleasedBrake != 0 && GameTimeLastPressedBrake != 0 && GameTimeLastPressedBrake - GameTimeLastReleasedBrake <= 250)
+            {
+                EntryPoint.WriteToConsole($"YOU DOUBLE TAPPED Brake Press:{GameTimeLastPressedBrake} Rel:{GameTimeLastReleasedBrake} Tot:{GameTimeLastPressedBrake - GameTimeLastReleasedBrake}");
+                Player.ActivityManager.SetTransmissionState(eTransmissionState.Reverse);
+            }
+
+            GameTimeLastPressedAccelerate = 0;
+            GameTimeLastPressedBrake = 0;
+        }
+
         private void ProcessMenuControls()
         {
             if (!Player.IsDisplayingCustomMenus && !Player.DisableMainMenu)

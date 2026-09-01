@@ -2367,14 +2367,53 @@ public class ActivityManager
 
 
 
-
-    public void ToggleTransmissionState()
+    public void SetTransmissionState(eTransmissionState eTransmissionState)
     {
+        if(!Settings.SettingsManager.VehicleSettings.AllowSetTransmissionState)
+        {
+            return;
+        }
         if (Player.CurrentVehicle == null)
         {
             return;
         }
         if (Player.CurrentVehicle.IsHotWireLocked)
+        {
+            return;
+        }
+        if (!Player.CurrentVehicle.Engine.IsRunning)
+        {
+            return;
+        }
+        if (!Player.IsDriver)
+        {
+            Game.DisplayHelp("Cannot change transmission status from current seat");
+            return;
+        }
+        if (IsPerformingActivity || !Settings.SettingsManager.VehicleSettings.PlayControlAnimations)
+        {
+            Player.CurrentVehicle?.Transmission.Set(eTransmissionState);
+        }
+        else
+        {
+            DoSimpleVehicleAnimation(new Action(() => Player.CurrentVehicle?.Transmission.Set(eTransmissionState)), "veh@std@ds@base", "start_engine", 200);
+        }
+    }
+    public void ToggleTransmissionState()
+    {
+        if (!Settings.SettingsManager.VehicleSettings.AllowSetTransmissionState)
+        {
+            return;
+        }
+        if (Player.CurrentVehicle == null)
+        {
+            return;
+        }
+        if (Player.CurrentVehicle.IsHotWireLocked)
+        {
+            return;
+        }
+        if (!Player.CurrentVehicle.Engine.IsRunning)
         {
             return;
         }
@@ -2389,7 +2428,7 @@ public class ActivityManager
         }
         else
         {
-            DoSimpleVehicleAnimation(new Action(() => Player.CurrentVehicle?.Transmission.ShiftTransmissionDown()), "veh@std@ds@base", "start_engine", 500);
+            DoSimpleVehicleAnimation(new Action(() => Player.CurrentVehicle?.Transmission.ShiftTransmissionDown()), "veh@std@ds@base", "start_engine", 200);
         }
     }
 }

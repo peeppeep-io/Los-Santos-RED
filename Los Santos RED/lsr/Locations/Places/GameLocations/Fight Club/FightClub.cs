@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
 
 
 public class FightClub : GameLocation
@@ -46,6 +47,17 @@ public class FightClub : GameLocation
     public List<string> AllowedGangs { get; set; }
     public bool DisablePlayerFights { get;  set; }
     public bool DisableGangFights { get; set; }
+    public bool IsRestrictedToFriendly { get; set; } = false;
+    public bool IsRestrictedToMember { get; set; } = false;
+
+
+    [XmlIgnore]
+    public Gang AssociatedGang { get; set; }
+    [XmlIgnore]
+    public Gang OriginalGang { get; set; }
+
+    [XmlIgnore]
+    public FightClubInterior FightClubInterior { get; set; }
     public override bool CanCurrentlyInteract(ILocationInteractable player)
     {
         ButtonPromptText = $"Fight at {Name}";
@@ -63,10 +75,53 @@ public class FightClub : GameLocation
         DispatchablePeople = dispatchablePeople;
         //DispatchableVehicles = modDataFileManager.DispatchableVehicles;
         IssuableWeapons = issuableWeapons;
-
-
+        AssociatedGang = gangs.GetGang(AssignedAssociationID);
+        OriginalGang = AssociatedGang;
+        if (HasInterior)
+        {
+            FightClubInterior = interiors.PossibleInteriors.FightClubInteriors.Where(x => x.LocalID == InteriorID).FirstOrDefault();
+            interior = FightClubInterior;
+            if (FightClubInterior != null)
+            {
+                FightClubInterior.SetFightClub(this);
+            }
+        }
         base.StoreData(shopMenus, agencies, gangs, zones, jurisdictions, gangTerritories, names, crimes, PedGroups, world, streets, locationTypes, settings, plateTypes, associations, contacts, interiors, player, modItems, weapons, time, placesOfInterest, issuableWeapons, heads, dispatchablePeople, modDataFileManager);
     }
+
+
+    public bool IsAvailableForPlayer()
+    {
+        if (AssociatedGang != null)
+        {
+            GangReputation currentReputation = Player.RelationshipManager.GangRelationships.GetReputation(AssociatedGang);
+            GangRespect gangRespect = GangRespect.Hostile;
+            if (currentReputation != null)
+            {
+                gangRespect = currentReputation.GangRelationship;
+            }
+            if (IsRestrictedToMember && gangRespect != GangRespect.Member)
+            {
+                Game.DisplayHelp($"{Name} is only available to members");
+                PlayErrorSound();
+                return false;
+            }
+            else if (IsRestrictedToFriendly && gangRespect != GangRespect.Member && gangRespect != GangRespect.Friendly)
+            {
+                Game.DisplayHelp($"{Name} is only available to associates");
+                PlayErrorSound();
+                return false;
+            }
+            else if (gangRespect == GangRespect.Hostile)
+            {
+                Game.DisplayHelp($"{Name} is not available to hostile gang members");
+                PlayErrorSound();
+                return false;
+            }
+        }
+        return true;
+    }
+
     public override void OnInteract()
     {
         if (IsLocationClosed())
@@ -87,36 +142,52 @@ public class FightClub : GameLocation
             StandardInteract(null, false);
         }
     }
-    public override void StandardInteract(LocationCamera locationCamera, bool isInside)
+    //public override void StandardInteract(LocationCamera locationCamera, bool isInside)
+    //{
+    //    Player.ActivityManager.IsInteractingWithLocation = true;
+    //    CanInteract = false;
+    //    Player.IsTransacting = true;
+    //    GameFiber.StartNew(delegate
+    //    {
+    //        try
+    //        {
+    //            SetupLocationCamera(locationCamera, isInside, true);
+    //            CreateInteractionMenu();
+    //            InteractionMenu.Visible = true;
+
+
+    //            //GenerateFightMenu();
+    //            ProcessInteractionMenu();
+    //            DisposeInteractionMenu();
+    //            DisposeCamera(isInside);
+    //            DisposeInterior();
+    //            Player.ActivityManager.IsInteractingWithLocation = false;
+    //            CanInteract = true;
+    //            Player.IsTransacting = false;
+    //        }
+    //        catch (Exception ex)
+    //        {
+    //            EntryPoint.WriteToConsole("Location Interaction" + ex.Message + " " + ex.StackTrace, 0);
+    //            EntryPoint.ModController.CrashUnload();
+    //        }
+    //    }, "RaceMeetupInteract");
+    //}
+
+
+
+
+
+    public void GenerateFightMenu(LocationCamera locationCamera)
     {
-        Player.ActivityManager.IsInteractingWithLocation = true;
-        CanInteract = false;
-        Player.IsTransacting = true;
-        GameFiber.StartNew(delegate
+
+        if (InteractionMenu == null)
         {
-            try
-            {
-                SetupLocationCamera(locationCamera, isInside, true);
-                CreateInteractionMenu();
-                InteractionMenu.Visible = true;
-                GenerateFightMenu();
-                ProcessInteractionMenu();
-                DisposeInteractionMenu();
-                DisposeCamera(isInside);
-                DisposeInterior();
-                Player.ActivityManager.IsInteractingWithLocation = false;
-                CanInteract = true;
-                Player.IsTransacting = false;
-            }
-            catch (Exception ex)
-            {
-                EntryPoint.WriteToConsole("Location Interaction" + ex.Message + " " + ex.StackTrace, 0);
-                EntryPoint.ModController.CrashUnload();
-            }
-        }, "RaceMeetupInteract");
-    }
-    private void GenerateFightMenu()
-    {
+            CreateInteractionMenu();
+           // InteractionMenu.Visible = true;
+        }
+        InteractionMenu.Clear();
+        FightSubMenu?.Clear();
+
         FightSubMenu = MenuPool.AddSubMenu(InteractionMenu, "Find a Fight");
         InteractionMenu.MenuItems[InteractionMenu.MenuItems.Count() - 1].Description = "Find a fight and setup the items.";
         InteractionMenu.MenuItems[InteractionMenu.MenuItems.Count() - 1].RightBadge = UIMenuItem.BadgeStyle.Alert;
@@ -126,7 +197,32 @@ public class FightClub : GameLocation
             FightSubMenu.SetBannerType(BannerImage);
         }
         List<DispatchablePerson> listOfPeople = DispatchablePeople.GetPersonData(NonGangFightersGroup).ToList();
-        FightClubsMenu fightClubsMenu = new FightClubsMenu(MenuPool, FightSubMenu, World,Settings, Player, EntryPoint.ModController.Player, EntryPoint.ModController.Player, this, Gangs, AllowedGangs, listOfPeople);
-        fightClubsMenu.Setup();
+        FightClubsMenu fightClubsMenu = new FightClubsMenu(MenuPool, FightSubMenu, World, Settings, Player, EntryPoint.ModController.Player, EntryPoint.ModController.Player, this, Gangs, AllowedGangs, listOfPeople);
+        fightClubsMenu.Setup(locationCamera);
+        InteractionMenu.Visible = true;
+        fightClubsMenu.UpdateMenus();
     }
+
+    //public void GenerateFightMenuOLD()
+    //{
+
+    //    if (InteractionMenu == null)
+    //    {
+    //        CreateInteractionMenu();
+    //        InteractionMenu.Visible = true;
+    //    }
+
+    //    FightSubMenu = MenuPool.AddSubMenu(InteractionMenu, "Find a Fight");
+    //    InteractionMenu.MenuItems[InteractionMenu.MenuItems.Count() - 1].Description = "Find a fight and setup the items.";
+    //    InteractionMenu.MenuItems[InteractionMenu.MenuItems.Count() - 1].RightBadge = UIMenuItem.BadgeStyle.Alert;
+    //    if (HasBannerImage)
+    //    {
+    //        BannerImage = Game.CreateTextureFromFile($"Plugins\\LosSantosRED\\images\\{BannerImagePath}");
+    //        FightSubMenu.SetBannerType(BannerImage);
+    //    }
+    //    List<DispatchablePerson> listOfPeople = DispatchablePeople.GetPersonData(NonGangFightersGroup).ToList();
+    //    FightClubsMenu fightClubsMenu = new FightClubsMenu(MenuPool, FightSubMenu, World, Settings, Player, EntryPoint.ModController.Player, EntryPoint.ModController.Player, this, Gangs, AllowedGangs, listOfPeople);
+    //    fightClubsMenu.Setup();
+    //}
+
 }

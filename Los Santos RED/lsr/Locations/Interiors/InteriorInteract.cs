@@ -25,6 +25,7 @@ using System.Xml.Serialization;
 [XmlInclude(typeof(AudioEmitterInteract))]
 [XmlInclude(typeof(TryOnInteract))]
 [XmlInclude(typeof(GamblingInteract))]
+[XmlInclude(typeof(FightClubInteract))]
 //UrinalInteract
 //ToiletInteract
 public class InteriorInteract

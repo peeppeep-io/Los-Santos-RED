@@ -21,10 +21,10 @@ public class GangTerritoryManager
     private List<Zone> ChangedZones = new List<Zone>();
     public List<GangWar> GangWars { get; set; } = new List<GangWar>();
     public List<GangRetaliation> Retaliations { get; set; } = new List<GangRetaliation>();
-    public bool IsAtWarWith(Gang gang) => GangWars.Any(x=> !x.IsWarEnded && x.TargetGang != null && x.TargetGang.ID.ToLower() == gang.ID.ToLower());
-    public bool IsDoingRetaliation(Gang gang) => Retaliations.Any(x => x.HasRetaliationStarted && x.HasPlayerReturnedToZone && !x.IsEnded && x.TargetGang != null && x.TargetGang.ID.ToLower() == gang.ID.ToLower());
-    public bool IsAtWarWithAnyGang() => GangWars.Any(x => !x.IsWarEnded);
-    public bool IsAnyGangRetaliating() => Retaliations.Any(x => x.HasRetaliationStarted && x.HasPlayerReturnedToZone && !x.IsEnded);
+    //public bool IsAtWarWith(Gang gang) => GangWars.Any(x=> !x.IsWarEnded && x.TargetGang != null && x.TargetGang.ID.ToLower() == gang.ID.ToLower());
+    //public bool IsDoingRetaliation(Gang gang) => Retaliations.Any(x => x.HasRetaliationStarted && x.HasPlayerReturnedToZone && !x.IsEnded && x.TargetGang != null && x.TargetGang.ID.ToLower() == gang.ID.ToLower());
+    public bool IsAtWarWithAnyGang() => GangWars.Any(x => x.IsWarfareActive && !x.IsEnded);
+    public bool IsAnyGangRetaliating() => Retaliations.Any(x => x.IsWarfareActive && x.HasPlayerEnteredArea && !x.IsEnded);
     public GangTerritoryManager(IGangTerritoryManageable player, ISettingsProvideable settings, IEntityProvideable world, IGangTerritories gangTerritories, 
         IPlacesOfInterest placesOfInterest, ITimeReportable time, IZones zones)
     {
@@ -86,7 +86,7 @@ public class GangTerritoryManager
             int CasualityLimit = RandomItems.GetRandomNumberInt(gangToBattle.TakeoverTerritoryCasualtyLimitMin, gangToBattle.TakeoverTerritoryCasualtyLimitMax);
 
 
-            existingWar = new GangWar(Player,gangToBattle, new List<Zone>() { zone }, CasualityLimit, this);// gangToBattle.GangWarCasualtyLimit);
+            existingWar = new GangWar(Player,gangToBattle, new List<Zone>() { zone }, CasualityLimit, this, World);// gangToBattle.GangWarCasualtyLimit);
             GangWars.Add(existingWar);
             existingWar.Start();
             EntryPoint.WriteToConsole($"Gang War Started with {gangToBattle.ShortName} in {zone.DisplayName}");
@@ -258,7 +258,8 @@ public class GangTerritoryManager
 
     public void LoadWar(Gang targetGang, List<Zone> zonesToAttack, int casualityLimit)
     {
-        GangWar existingWar = new GangWar(Player, targetGang, zonesToAttack, casualityLimit, this);// gangToBattle.GangWarCasualtyLimit);
+        GangWar existingWar = new GangWar(Player, targetGang, zonesToAttack, casualityLimit, this, World);// gangToBattle.GangWarCasualtyLimit);
+        existingWar.Setup();
         GangWars.Add(existingWar);
     }
 
@@ -275,13 +276,13 @@ public class GangTerritoryManager
         {
             return toReturn;
         }
-        GangWar existingWar = GangWars.Where(x => !x.IsWarEnded && x.TargetGang != null && x.TargetGang.ID == gang.ID).FirstOrDefault();
+        GangWar existingWar = GangWars.Where(x => x.IsWarfareActive && !x.IsEnded && x.TargetGang != null && x.TargetGang.ID == gang.ID).FirstOrDefault();
 
         if(existingWar != null)
         {
             return existingWar.ZonesToAttack.ToList();
         }
-        GangRetaliation gangRetaliation = Retaliations.Where(x=>x.HasRetaliationStarted && !x.IsEnded && x.TargetGang != null && x.TargetGang.ID == gang.ID).FirstOrDefault();
+        GangRetaliation gangRetaliation = Retaliations.Where(x=>x.IsWarfareActive && !x.IsEnded && x.TargetGang != null && x.TargetGang.ID == gang.ID).FirstOrDefault();
         if (gangRetaliation != null)
         {
             return gangRetaliation.ZonesToAttack.ToList();
@@ -293,7 +294,7 @@ public class GangTerritoryManager
         Gang toReturn = null;
         if (Player.CurrentLocation.CurrentZone != null)
         {
-            GangWar existingWar = GangWars.Where(x => !x.IsWarEnded && x.ZonesToAttack.Contains(Player.CurrentLocation.CurrentZone)).FirstOrDefault();
+            GangWar existingWar = GangWars.Where(x => x.IsWarfareActive && !x.IsEnded && x.ZonesToAttack.Contains(Player.CurrentLocation.CurrentZone)).FirstOrDefault();
             if (existingWar != null && existingWar.TargetGang != null)
             {
                 toReturn = existingWar.TargetGang;
@@ -301,7 +302,7 @@ public class GangTerritoryManager
         }
         if(toReturn == null)
         {
-            GangWar existingWar = GangWars.Where(x => !x.IsWarEnded).FirstOrDefault();
+            GangWar existingWar = GangWars.Where(x => x.IsWarfareActive && !x.IsEnded).FirstOrDefault();
             if (existingWar != null && existingWar.TargetGang != null)
             {
                 toReturn = existingWar.TargetGang;
@@ -309,7 +310,7 @@ public class GangTerritoryManager
         }
         if (toReturn == null && Player.CurrentLocation.CurrentZone != null)
         {
-            GangRetaliation existingRetaliation = Retaliations.Where(x => !x.IsEnded && x.HasRetaliationStarted && x.ZonesToAttack.Contains(Player.CurrentLocation.CurrentZone)).FirstOrDefault();
+            GangRetaliation existingRetaliation = Retaliations.Where(x => !x.IsEnded && x.IsWarfareActive && x.ZonesToAttack.Contains(Player.CurrentLocation.CurrentZone)).FirstOrDefault();
             if (existingRetaliation != null && existingRetaliation.TargetGang != null)
             {
                 toReturn = existingRetaliation.TargetGang;
@@ -317,7 +318,7 @@ public class GangTerritoryManager
         }
         if (toReturn == null)
         {
-            GangRetaliation existingRetaliation = Retaliations.Where(x => !x.IsEnded && x.HasRetaliationStarted).FirstOrDefault();
+            GangRetaliation existingRetaliation = Retaliations.Where(x => !x.IsEnded && x.IsWarfareActive).FirstOrDefault();
             if (existingRetaliation != null && existingRetaliation.TargetGang != null)
             {
                 toReturn = existingRetaliation.TargetGang;

@@ -56,6 +56,7 @@ namespace LosSantosRED.lsr.Interface
         IntimidationManager IntimidationManager { get; }
         bool IsSetDisabledControlsWithCamera { get; }
         bool DisableMainMenu { get; }
+        bool IsDriver { get; }
 
         //   void CancelCurrentActivity();
         //  void CloseDriverDoor();

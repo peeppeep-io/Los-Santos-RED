@@ -23,7 +23,7 @@ public class Transmission
     private float CurrentRPMRatio;
     private bool IsRunningFiber = false;
     private IDriveable Driver;
-
+    public bool CanToggle => VehicleToMonitor != null && VehicleToMonitor.Vehicle.Exists() && VehicleToMonitor.Engine.IsRunning && VehicleToMonitor.Vehicle.Speed < 4f && !VehicleToMonitor.Vehicle.MustBeHotwired;
     public eTransmissionState TransmissionState { get; private set; }
     public string TransmissionSymbol
     {
@@ -61,6 +61,10 @@ public class Transmission
         {
             UpdateDriverState();
         }
+    }
+    public void Set(eTransmissionState statToSet)
+    {
+        TransmissionState = statToSet;
     }
     public void SetParked()
     {
@@ -131,6 +135,9 @@ public class Transmission
     {
         CurrentSpeedMPH = VehicleToMonitor.Vehicle.Speed * 2.23694f;
         CurrentRPMRatio = VehicleToMonitor.Vehicle.EngineRevolutionsRatio;
+
+
+
         if (TransmissionState == eTransmissionState.Park)
         {
             UpdateParked();
@@ -145,7 +152,15 @@ public class Transmission
         }
         else if (TransmissionState == eTransmissionState.Reverse)
         {
-            UpdateReverse();
+            //if (Settings.SettingsManager.VehicleSettings.TransmissionInvertControlForReverse)
+            //{
+            //    UpdateReverseInvert();
+                
+            //}
+            //else
+            //{
+                UpdateReverse();
+            //}
         }
     }
 
@@ -168,9 +183,16 @@ public class Transmission
         NativeFunction.Natives.SET_VEHICLE_HANDBRAKE(VehicleToMonitor.Vehicle, false);
         if (!Game.IsControlPressed(0, GameControl.VehicleAccelerate) && CurrentSpeedMPH <= 15.0f)// && !NativeFunction.Natives.IS_DISABLED_CONTROL_PRESSED<bool>(0, 71))
         {
-            NativeFunction.Natives.SET_CONTROL_VALUE_NEXT_FRAME(0, (int)GameControl.VehicleAccelerate, Settings.SettingsManager.VehicleSettings.TransmissionDriveCreepPercentage);
+            if(CurrentSpeedMPH <= 15f)
+            {
+                NativeFunction.Natives.SET_CONTROL_VALUE_NEXT_FRAME(0, (int)GameControl.VehicleAccelerate, Settings.SettingsManager.VehicleSettings.TransmissionDriveCreepPercentage);
+            }
+            //else if (CurrentSpeedMPH <= 15f)
+            //{
+            //    NativeFunction.Natives.SET_CONTROL_VALUE_NEXT_FRAME(0, (int)GameControl.VehicleAccelerate, Math.Max(Settings.SettingsManager.VehicleSettings.TransmissionDriveCreepPercentage - 0.1f, 0f));
+            //}
         }
-        if(CurrentSpeedMPH < 0.5f || VehicleToMonitor.Vehicle.CurrentGear == 0)
+        if(CurrentSpeedMPH < 1.0f || VehicleToMonitor.Vehicle.CurrentGear == 0)
         {
             Game.DisableControlAction(0, GameControl.VehicleBrake, true);
             if(Game.IsControlPressed(0, GameControl.VehicleBrake) || NativeFunction.Natives.IS_DISABLED_CONTROL_PRESSED<bool>(0, 72))
@@ -196,6 +218,31 @@ public class Transmission
     }
     private void UpdateReverse()
     {
+        NativeFunction.Natives.SET_VEHICLE_HANDBRAKE(VehicleToMonitor.Vehicle, false);
+        Game.DisableControlAction(0, GameControl.VehicleAccelerate, true);
+        if (NativeFunction.Natives.IS_DISABLED_CONTROL_PRESSED<bool>(0, 71))
+        {
+            NativeFunction.Natives.SET_VEHICLE_BRAKE_LIGHTS(VehicleToMonitor.Vehicle, true);
+            NativeFunction.Natives.TASK_VEHICLE_TEMP_ACTION(Game.LocalPlayer.Character, VehicleToMonitor.Vehicle, 27, 200);
+        }
+        else
+        {
+            NativeFunction.Natives.SET_VEHICLE_BRAKE(VehicleToMonitor.Vehicle, 0.0f);
+        }
+        if (CurrentSpeedMPH <= 15f)
+        {
+            NativeFunction.Natives.SET_CONTROL_VALUE_NEXT_FRAME(0, (int)GameControl.VehicleBrake, Settings.SettingsManager.VehicleSettings.TransmissionDriveCreepPercentage);
+        }
+        //else if (CurrentSpeedMPH <= 15f)
+        //{
+        //    NativeFunction.Natives.SET_CONTROL_VALUE_NEXT_FRAME(0, (int)GameControl.VehicleBrake, Math.Max(Settings.SettingsManager.VehicleSettings.TransmissionDriveCreepPercentage - 0.1f,0f));
+        //}
+    }
+    private void UpdateReverseInvert()
+    {
+        NativeFunction.Natives.SET_INVERT_VEHICLE_CONTROLS(VehicleToMonitor.Vehicle, true);
+
+
         NativeFunction.Natives.SET_VEHICLE_HANDBRAKE(VehicleToMonitor.Vehicle, false);
         Game.DisableControlAction(0, GameControl.VehicleAccelerate, true);
         if (NativeFunction.Natives.IS_DISABLED_CONTROL_PRESSED<bool>(0, 71))

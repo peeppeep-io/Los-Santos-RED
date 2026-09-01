@@ -164,6 +164,7 @@ public class VehicleSettings : ISettingsDefaultable
     public bool AllowSetTransmissionState { get; set; }
     public float TransmissionDriveCreepPercentage { get; set; }
 
+
     [OnDeserialized()]
     private void SetValuesOnDeserialized(StreamingContext context)
     {

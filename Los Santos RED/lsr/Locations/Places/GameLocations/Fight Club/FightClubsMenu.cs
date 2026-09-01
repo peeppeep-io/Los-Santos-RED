@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 public class FightClubsMenu
 {
     private MenuPool MenuPool;
+    private LocationCamera LocationCamera;
     private UIMenu FightMenu;
     IEntityProvideable World;
     IInteractionable Player;
@@ -49,11 +50,11 @@ public class FightClubsMenu
         NonGangFightersGroup = nonGangFightersGroup;
     }
 
-    public void Setup()
+    public void Setup(LocationCamera locationCamera)
     {
         EntryPoint.WriteToConsole("FightClubsMenu START RAN");
 
-
+        LocationCamera = locationCamera;
         //AddTrackSubMenu();
         //AddPlayerVehicleMenu();
         //AddBettingSubMenu();
@@ -123,21 +124,100 @@ public class FightClubsMenu
         startFightMenuItem = new UIMenuItem("Start Fight", "Select to start the current fight");
         startFightMenuItem.Activated += (menu, item) =>
         {
-            if (!AttemptStartFight(menu))
-            {
-                Game.DisplayHelp("Error starting fight");
-            }
+            StartFight(menu);
+            //if (!AttemptStartFight(menu))
+            //{
+            //    Game.DisplayHelp("Error starting fight");
+            //}
         };
         FightMenu.AddItem(startFightMenuItem);
 
         //UpdateStartRaceDescription();
+        //FightMenu.Visible = true;
+
+    }
+
+    public void UpdateMenus()
+    {
+        while (MenuPool.IsAnyMenuOpen())
+        {
+            MenuPool.ProcessMenus();
+            GameFiber.Yield();
+        }
+
+
+
+
+    }
+
+
+    private void StartFight(UIMenu menu)
+    {
+        menu.Visible = false;
+        try
+        {
+            MenuPool.CloseAllMenus();
+
+
+            LocationCamera?.ReturnToGameplay(true);
+            LocationCamera?.StopImmediately(true);
+
+
+
+            IsFightActive = true;
+            int TotalFighters = numberOfFightersScroller.Value;
+            FightClubFight fightClubFight;
+            if (isGangFightMenuItem != null && isGangFightMenuItem.Checked)
+            {
+                fightClubFight = new FightClubFight(FightClub.FightClubArena, FightClub, isPlayerFightMenuItem.Checked, TotalFighters, World, Settings, Targetable, FightClubable, GangToFightScroller.SelectedItem);
+            }
+            else
+            {
+                fightClubFight = new FightClubFight(FightClub.FightClubArena, FightClub, isPlayerFightMenuItem.Checked, TotalFighters, World, Settings, Targetable, FightClubable, NonGangFightersGroup);
+            }
+            if (meleeWeaponsCheckbox != null)
+            {
+                fightClubFight.AllowMeleeWeapons = meleeWeaponsCheckbox.Checked;
+            }
+            if (sidearmsWeaponsCheckbox != null)
+            {
+                fightClubFight.AllowSidearms = sidearmsWeaponsCheckbox.Checked;
+            }
+            if (heavyWeaponsCheckbox != null)
+            {
+                fightClubFight.AllowHeavyWeapons = heavyWeaponsCheckbox.Checked;
+            }
+
+
+
+
+            fightClubFight.Setup();
+            Game.FadeScreenOut(1000, true);
+            fightClubFight.BeginFirstFight();
+            GameFiber FightClubDebug = GameFiber.StartNew(delegate
+            {
+                while (!fightClubFight.IsEnded && EntryPoint.ModController.IsRunning)
+                {
+                    fightClubFight.Update();
+                    GameFiber.Yield();
+                }
+            }, "FightClubDebug");
+            IsFightActive = false;
+        }
+        catch (Exception ex)
+        {
+            EntryPoint.WriteToConsole("Location Interaction" + ex.Message + " " + ex.StackTrace, 0);
+            EntryPoint.ModController.CrashUnload();
+        }
     }
 
 
 
+    public bool IsFightActive { get; private set; }
+
+
     private bool AttemptStartFight(UIMenu menu)
     {
-
         menu.Visible = false;
         GameFiber.StartNew(delegate
         {
@@ -145,15 +225,15 @@ public class FightClubsMenu
             {
                 //Game.FadeScreenOut(1000, true);
                 MenuPool.CloseAllMenus();
-                while (Player.ActivityManager.IsInteractingWithLocation)
-                {
-                    GameFiber.Yield();
-                }
+                //while (Player.ActivityManager.IsInteractingWithLocation)
+                //{
+                //    GameFiber.Yield();
+                //}
 
 
 
 
-
+                IsFightActive = true;
                 int TotalFighters = numberOfFightersScroller.Value;
                 FightClubFight fightClubFight;
                 if(isGangFightMenuItem != null && isGangFightMenuItem.Checked)
@@ -178,6 +258,13 @@ public class FightClubsMenu
                 }
                 fightClubFight.Setup();
                 Game.FadeScreenOut(1000, true);
+
+
+
+
+
+
+
                 fightClubFight.BeginFirstFight();
                 GameFiber FightClubDebug = GameFiber.StartNew(delegate
                 {
@@ -188,13 +275,14 @@ public class FightClubsMenu
                     }
                     //fightClubFight.Dispose();
                 }, "FightClubDebug");
+                IsFightActive = false;
             }
             catch (Exception ex)
             {
                 EntryPoint.WriteToConsole("Location Interaction" + ex.Message + " " + ex.StackTrace, 0);
                 EntryPoint.ModController.CrashUnload();
             }
-        }, "RaceMeetupInteract");
+        }, "FightClubInteract");
 
         return true;
     }

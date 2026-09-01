@@ -1403,7 +1403,17 @@ public class PopUpMenu
             new PopUpBox(4,"Driver Door",Player.ActivityManager.ToggleDriverDoor,"Toggle driver door. Access other doors in the menu when outside the vehicle"),
             new PopUpBox(5,"Door Locks",Player.ActivityManager.ToggleDoorLocks,"Toggle door locks."),
             new PopUpBox(6,"Menu",new Action(() => Player.ShowVehicleInteractMenu(true)),"Show Vehicle Interaction Menu"),
+            new PopUpBox(7,"Transmission","TransmissionSubMenu","Open Transmission Sub Menu") { ClosesMenu = false, IsCurrentlyValid = new Func<bool>(() => Player.CurrentVehicle?.Transmission.CanToggle == true)},
         };
+
+
+        List<PopUpBox> TransmissionSubMenu = new List<PopUpBox>()
+        {
+            new PopUpBox(0,"Park",new Action(() =>Player.ActivityManager.SetTransmissionState(eTransmissionState.Park)),"Set the transmission to Park"),
+            new PopUpBox(1,"Reverse",new Action(() =>Player.ActivityManager.SetTransmissionState(eTransmissionState.Reverse)),"Set the transmission to Reverse"),
+            new PopUpBox(2,"Drive",new Action(() =>Player.ActivityManager.SetTransmissionState(eTransmissionState.Drive)),"Set the transmission to Drive"),
+        };
+
         List<PopUpBox> IndicatorsSubMenu = new List<PopUpBox>()
         {
             new PopUpBox(0,"Hazards",Player.ActivityManager.ToggleHazards,"Toggle the vehicle hazards"),
@@ -1501,6 +1511,10 @@ public class PopUpMenu
         PopUpMenuGroups.Add(new PopUpBoxGroup(WeaponsSubMenuName, WeaponsSubMenu) { IsChild = true });
         PopUpMenuGroups.Add(new PopUpBoxGroup("StancesSubMenu", StanceSubMenu) { IsChild = true });
         PopUpMenuGroups.Add(new PopUpBoxGroup("VehicleSubMenu", VehicleSubMenu) { IsChild = true });
+
+        
+
+        PopUpMenuGroups.Add(new PopUpBoxGroup("TransmissionSubMenu", TransmissionSubMenu) { IsChild = true });
         PopUpMenuGroups.Add(new PopUpBoxGroup("IndicatorsSubMenu", IndicatorsSubMenu) { IsChild = true });
         PopUpMenuGroups.Add(new PopUpBoxGroup("SitSubMenu", SitSubMenu) { IsChild = true });
         PopUpMenuGroups.Add(new PopUpBoxGroup("BodyArmorSubMenu", BodyArmorSubMenu) { IsChild = true });
