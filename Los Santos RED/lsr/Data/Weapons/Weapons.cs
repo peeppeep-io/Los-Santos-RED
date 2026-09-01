@@ -1225,9 +1225,9 @@ public class Weapons : IWeapons
         WeaponsList.Add(new WeaponInformation("weapon_ball", 1, WeaponCategory.Throwable, 2, 0x23C9F95C, false, false, false) { IsLegal = true, DoesNotTriggerBrandishing = true, IsRegular = false });
         WeaponsList.Add(new WeaponInformation("weapon_smokegrenade", 1, WeaponCategory.Throwable, 2, 0xFDBC8A50, false, false, false));
         WeaponsList.Add(new WeaponInformation("weapon_flare", 1, WeaponCategory.Throwable, 2, 0x497FACC3, false, false, false));
-        WeaponsList.Add(new WeaponInformation("weapon_petrolcan", 1, WeaponCategory.Misc, 0, 0x34A67B97, false, false, false));
+        WeaponsList.Add(new WeaponInformation("weapon_petrolcan", 1, WeaponCategory.Misc, 0, 0x34A67B97, false, false, false) { SelectorOptions = SelectorOptions.FullAuto });
         WeaponsList.Add(new WeaponInformation("gadget_parachute", 1, WeaponCategory.Misc, 0, 0xFBAB5776, false, false, false) { IsLegal = true, DoesNotTriggerBrandishing = true,IsRegular = false, });
         WeaponsList.Add(new WeaponInformation("weapon_fireextinguisher", 1, WeaponCategory.Misc, 0, 0x060EC506, false, false, false) { IsLegal = true, DoesNotTriggerBrandishing = true,IsRegular= false  });
-        WeaponsList.Add(new WeaponInformation("weapon_hazardcan", 1, WeaponCategory.Misc, 0, 0xBA536372, false, false, false));
+        WeaponsList.Add(new WeaponInformation("weapon_hazardcan", 1, WeaponCategory.Misc, 0, 0xBA536372, false, false, false) { SelectorOptions = SelectorOptions.FullAuto });
     }
 }
