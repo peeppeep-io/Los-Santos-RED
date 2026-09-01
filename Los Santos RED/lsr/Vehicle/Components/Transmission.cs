@@ -23,7 +23,7 @@ public class Transmission
     private float CurrentRPMRatio;
     private bool IsRunningFiber = false;
     private IDriveable Driver;
-    public bool CanToggle => VehicleToMonitor != null && VehicleToMonitor.Vehicle.Exists() && VehicleToMonitor.Engine.IsRunning && VehicleToMonitor.Vehicle.Speed < 4f && !VehicleToMonitor.Vehicle.MustBeHotwired;
+    public bool CanToggle => VehicleToMonitor != null && VehicleToMonitor.Vehicle.Exists() && VehicleToMonitor.Engine.IsRunning && CurrentSpeedMPH < 5f && !VehicleToMonitor.Vehicle.MustBeHotwired;
     public eTransmissionState TransmissionState { get; private set; }
     public string TransmissionSymbol
     {
@@ -64,6 +64,10 @@ public class Transmission
     }
     public void Set(eTransmissionState statToSet)
     {
+        if (!CanToggle)
+        {
+            return;
+        }
         TransmissionState = statToSet;
     }
     public void SetParked()
@@ -72,6 +76,11 @@ public class Transmission
     }
     public void ShiftTransmissionUp()
     {
+        if (!CanToggle)
+        {
+            return;
+        }
+
         if (TransmissionState == eTransmissionState.Drive)
         {
             TransmissionState = eTransmissionState.Reverse;
@@ -91,6 +100,14 @@ public class Transmission
     }
     public void ShiftTransmissionDown()
     {
+
+        if(!CanToggle)
+        {
+            return;
+        }
+
+
+
         if (TransmissionState == eTransmissionState.Park)
         {
             TransmissionState = eTransmissionState.Reverse;
